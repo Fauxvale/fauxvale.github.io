@@ -15,8 +15,8 @@ The finished page has **two tabs**:
 
 - **SkyrimNet** — my character's lived experience: an event timeline, an interactive "constellation"
   of their memories, the memories themselves, a kill ledger, a diary page, and OmniSight field notes.
-- **IntelEngine** — the political layer: faction relationships, the ongoing war, its battles, a
-  chronicle of provocations between factions, and off-screen gossip.
+- **IntelEngine** — the political layer: faction relationships, a chronicle of provocations between
+  factions, off-screen gossip, and — **only if my save actually has one** — an ongoing war and its battles.
 
 **Do not build anything yet.** First collect my files, one at a time, following the protocol below.
 Everything about the page — the character's name, the number of in-game days, every count and label —
@@ -28,7 +28,10 @@ must be **derived from my uploaded data**. Nothing is hardcoded from any example
 
 Ask me for **one file at a time**, in the order below. After each upload, **inspect the file and tell me
 what you found** (row counts, the character's name, the date range, anything missing) before asking for
-the next one. Wait for each upload — do not ask for everything at once.
+the next one. Wait for each upload — do not ask for everything at once. While inspecting, also **flag
+anything notable that the sample site's layout doesn't cover** — a major world event, a quest arc, a
+milestone, an unusual populated table — and ask whether I'd like a new dedicated section for it (see
+"Beyond the sample layout" in Phase 3).
 
 The databases are **SQLite**. Inspect them with Python's built-in `sqlite3` module (the `sqlite3` CLI may
 not be available). Run read-only queries only — never modify my files.
@@ -73,9 +76,10 @@ source for the **IntelEngine tab**. Confirm these tables:
 - **`faction_relations`** — pairwise standings: `faction_a`, `faction_b`, `relation_score` (−100…+100),
   `war_active`, `trade_active`.
 - **`faction_wars`** — active/past wars: `faction_a`, `faction_b`, `battles_fought`, `faction_a_morale`,
-  `faction_b_morale`, `faction_a_strength`, `faction_b_strength`, `victor`.
+  `faction_b_morale`, `faction_a_strength`, `faction_b_strength`, `victor`. **May be empty** — many saves
+  never trigger a war at all.
 - **`war_battles`** — `location_name`, `attacker`, `defender`, `result`, `attacker_losses`,
-  `defender_losses`, `narrative`.
+  `defender_losses`, `narrative`. Also empty when no war has broken out.
 - **`faction_events`** — provocations/incidents: `faction_a`, `faction_b`, `event_type`
   (e.g. `war_declaration`, `border_skirmish`, `espionage`, `assassination_attempt`), `description`,
   `relation_delta` (a signed integer), `game_time`.
@@ -84,6 +88,10 @@ If I also happen to have a small **`political_state.json`**, use it for **factio
 names, leaders, and holds — which give you readable faction labels for the relations/chronicle sections. It
 also mirrors the current war/relations state as a convenience, but the IntelEngine DB is authoritative for
 the numbers.
+
+Then **tell me whether this save has a war** — i.e. whether there are any rows in `faction_wars` /
+`war_battles`, or a `war_declaration` in `faction_events`. If there is no war, the war and battle sections
+described later are simply left out; the rest of the IntelEngine tab still gets built.
 
 ### Step 3 — the SkyrimNet logs
 
@@ -191,9 +199,10 @@ The same `text_factory = bytes` trick applies to any SkyrimNet DB you inspect wi
 
 - **`relations`** — from `faction_relations`: each pair with its signed `relation_score` and whether a war
   is active.
-- **`war`** — from `faction_wars`: the belligerents, `battles_fought`, the war's start date, and both
-  sides' morale & strength.
+- **`war`** — from `faction_wars`, **only if a war exists**: the belligerents, `battles_fought`, the war's
+  start date, and both sides' morale & strength. Omit this key entirely when there's no war.
 - **`battles`** — from `war_battles`: location, attacker/defender, result, losses on each side, narrative.
+  Empty or omitted when there's no war.
 - **`events`** — from `faction_events`: the provocation chronicle — faction pair, `event_type`,
   `description`, signed `relation_delta`, ordered by `game_time`.
 
@@ -260,10 +269,16 @@ double-clicking the file offline.
 
 1. **The Great Powers** — `relations` rows: faction A vs faction B with a **centered ± bar** (negative to
    the blood side, positive to the gold/moss side) and the numeric score; flag any pair at war.
-2. **The War** — a panel for the active `war`: an intro note (who declared it and when, battles fought so
-   far, victor status), then the two belligerents either side of a `Versus`, each with **morale** and
-   **strength** gauges (0–100 bars).
-3. **Battles** — `battles` rows: location, attacker/defender, and each side's losses with the narrative.
+> **Sections 2–3 are conditional on there being a war.** If the data has no war (see Step 2), **omit both
+> the war panel and the battles list entirely** — no empty panel, no "no war found" placeholder — and let
+> the remaining IntelEngine sections renumber so the tab reads naturally (Relations, then Provocations, then
+> Whispers).
+
+2. **The War** *(only if a war exists)* — a panel for the active `war`: an intro note (who declared it and
+   when, battles fought so far, victor status), then the two belligerents either side of a `Versus`, each
+   with **morale** and **strength** gauges (0–100 bars).
+3. **Battles** *(only if a war exists)* — `battles` rows: location, attacker/defender, and each side's
+   losses with the narrative.
 4. **Chronicle of Provocations** — `events` rows in time order: an event-type tag, the description, the
    faction pair, and the signed `relation_delta` (red for negative).
 5. **Whispers Beyond the Road** — `gossipdata` as speaker → listener → rumor rows (the rumor quoted, with
@@ -279,6 +294,16 @@ double-clicking the file offline.
    data (the player's name from `uuid_mappings`; faction names/leaders/holds from IntelEngine +
    `political_state.json`) rather than hardcoding any character. If no log was uploaded, hide this section
    and note why.
+
+### Beyond the sample layout
+
+The sections above mirror the reference site, but my save is my own. If, while reading my data, you find
+something **genuinely notable that none of those sections capture** — e.g. a significant world event, a
+completed quest arc, a dragon-soul or bounty milestone, or a distinctive populated table in one of the DBs
+— **don't silently drop it, and don't cram it into an ill-fitting section.** Tell me what you found and
+**ask whether I'd like a new section built for it.** If I say yes, design it in the same aesthetic
+(roman-numeral header, the shared palette and fonts, its own JSON payload) and add it to the appropriate
+tab and the table of contents. Only add sections I've approved — never invent one unprompted.
 
 ### Footer
 
