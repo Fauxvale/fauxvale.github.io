@@ -132,9 +132,13 @@ Build three JSON payloads to embed in the page. Derive everything from my files.
 - **`stats`** — headline numbers for the header: total events, total memories, number of distinct minds
   (actors that have memories), and OmniSight captures. Also a one-line subtitle (character name + the
   in-game date span, and playtime hours if derivable from `playtime`).
-  **Total Spend is opt-in:** the sample site includes a "Total Spend" stat (gold spent, summed from
-  `gold_spent`/`net_gold` on `trade_*` events). Before finalizing the header, **ask me whether I'd like to
-  include a Total Spend statistic like the sample's**, and only add it as a header stat block if I say yes.
+  **Total Spend is opt-in and user-supplied:** the sample site includes a "Total Spend" stat — the
+  real-world money I spent running this playthrough (API/LLM calls and the like), **not** any in-game gold.
+  There is no way to derive this from my files. Before finalizing the header, **ask me whether I'd like to
+  include a Total Spend statistic like the sample's**. If I say yes, **literally ask me how much (in real
+  dollars) I've spent on API calls etc. for this run**, and use the figure I give you verbatim (formatted
+  like the sample, e.g. `$10.01`). If I say no, skip the Total Spend stat entirely — just leave it out of
+  the header.
 - **`events_by_day`** — a map keyed `"<in-game day label>|<event_type>" -> count`. Parse the day/date out
   of `events.game_time_str` (e.g. `"20th of Last Seed"`), and count events per `(day, event_type)`. The
   page buckets `event_type`s into five categories — build the same mapping:
