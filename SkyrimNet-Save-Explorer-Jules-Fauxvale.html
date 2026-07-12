@@ -33,10 +33,18 @@ header .sub{color:var(--dim); font-style:italic; margin-top:10px; font-size:18px
 .stat span{font-family:'Oswald'; font-size:10.5px; letter-spacing:.24em; text-transform:uppercase; color:var(--dim)}
 
 section{margin-top:70px}
-h2{font-size:15px; letter-spacing:.3em; color:var(--text); display:flex; align-items:center; gap:16px; margin-bottom:6px}
+h2{font-size:15px; letter-spacing:.3em; color:var(--text); display:flex; align-items:center; gap:16px; margin-bottom:6px; cursor:pointer; user-select:none}
 h2::after{content:""; flex:1; border-top:1px solid var(--line)}
 h2 .n{color:var(--gold)}
 .sectionnote{color:var(--dim); font-style:italic; margin-bottom:22px; font-size:15.5px}
+
+/* collapsible sections */
+.seccaret{color:var(--gold); font-size:11px; line-height:1; transition:transform .22s; display:inline-block; width:14px; text-align:center; flex:none}
+section.collapsed .seccaret{transform:rotate(-90deg)}
+section.collapsed > *:not(h2){display:none}
+section.collapsed h2{margin-bottom:0}
+#sec-constellation.collapsed > #chips{display:flex; margin-top:16px}
+.skycaption{color:var(--dim); font-style:italic; font-size:13.5px; margin-top:10px}
 
 /* timeline */
 .days{display:grid; grid-template-columns:repeat(5,1fr); gap:14px; align-items:end}
@@ -147,16 +155,26 @@ footer{margin-top:80px; color:var(--dim); font-style:italic; font-size:14px; tex
 .tab.on{color:var(--gold); border-bottom-color:var(--gold)}
 
 /* floating contents */
-.toc{position:fixed; z-index:20; top:50%; left:max(18px,calc(50% - 770px)); transform:translateY(-50%); width:240px;
-  background:rgba(20,22,26,.94); border:1px solid var(--line2); box-shadow:0 10px 30px rgba(0,0,0,.22); backdrop-filter:blur(8px)}
-.tochead{display:flex; align-items:center; justify-content:space-between; padding:15px 16px 13px; border-bottom:1px solid var(--line)}
-.tochead span{font-family:'Oswald'; font-size:12px; letter-spacing:.22em; text-transform:uppercase; color:var(--gold)}
-.toctoggle{display:none; background:none; border:none; color:var(--dim); font:18px/1 'Oswald'; cursor:pointer}
-.toclist{list-style:none; padding:10px 0}
-.toclink{display:block; width:100%; border:0; border-left:3px solid transparent; background:none; color:var(--dim); cursor:pointer;
-  font-family:'Oswald'; font-size:12px; letter-spacing:.13em; line-height:1.35; text-align:left; text-transform:uppercase; padding:10px 15px}
+.toc{position:fixed; z-index:20; top:50%; left:24px; transform:translateY(-50%); width:300px;
+  background:none; border:none; box-shadow:none; backdrop-filter:none}
+/* on desktop, shift the page content clear of the pinned sidebar (centres again once the margin is wide enough) */
+@media(min-width:1181px){ .wrap{ margin-left:max(348px, calc((100vw - 1060px)/2)); margin-right:0 } }
+.tochead{display:flex; align-items:center; gap:12px; padding:6px 12px 14px; margin-bottom:6px; border-bottom:1px solid var(--line)}
+.toc-title{font-family:'Oswald'; font-size:12px; letter-spacing:.24em; text-transform:uppercase; color:var(--gold)}
+.toc-current{display:none}
+.toctoggle{display:none; background:none; border:none; color:var(--text); font:20px/1 'Oswald'; cursor:pointer; padding:0}
+.toclist{list-style:none; padding:0; margin:0}
+.toclist li{margin:0}
+.toclink{display:flex; align-items:center; gap:13px; width:100%; border:0; border-left:2px solid transparent; background:none; color:var(--dim); cursor:pointer;
+  font-family:'Oswald'; font-size:12.5px; letter-spacing:.13em; line-height:1.3; text-align:left; text-transform:uppercase; padding:11px 14px; transition:color .18s, background .18s, border-color .18s}
+.tocbadge{flex:none; width:26px; height:22px; display:flex; align-items:center; justify-content:center;
+  font-family:'Oswald'; font-size:11px; letter-spacing:.06em; color:var(--dim); border:1px solid var(--line); border-radius:2px; transition:color .18s, border-color .18s, background .18s}
+.toctext{flex:1}
 .toclink:hover{color:var(--text)}
-.toclink.on{color:var(--gold); border-left-color:var(--gold); background:rgba(201,164,92,.08)}
+.toclink:hover .tocbadge{border-color:var(--line2); color:var(--text)}
+.toclink.on{color:var(--gold); border-left-color:var(--gold); background:linear-gradient(90deg,rgba(201,164,92,.12),transparent)}
+.toclink.on .tocbadge{color:var(--bg); background:var(--gold); border-color:var(--gold)}
+.toc-scrim{display:none}
 
 /* intelengine */
 .relrow{display:grid; grid-template-columns:1fr 300px 1fr 90px; gap:18px; align-items:center; padding:14px 4px; border-bottom:1px solid var(--line)}
@@ -187,23 +205,29 @@ footer{margin-top:80px; color:var(--dim); font-style:italic; font-size:14px; tex
 .gossipstat{min-width:130px; padding:12px 24px 10px 0; margin-right:24px; border-bottom:1px solid var(--line)}
 .gossipstat b{display:block; font-family:'Oswald'; font-size:25px; font-weight:300; color:var(--gold); line-height:1.1}
 .gossipstat span{font-family:'Oswald'; font-size:9.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--dim)}
-.gossiplist{border-top:1px solid var(--line)}
-.gossip{display:grid; grid-template-columns:180px 38px 180px 1fr; gap:14px; align-items:start; padding:17px 4px; border-bottom:1px solid var(--line)}
-.gossip .speaker,.gossip .listener{font-family:'Oswald'; font-size:12px; letter-spacing:.16em; text-transform:uppercase; padding-top:3px}
-.gossip .speaker{color:var(--gold); text-align:right}
-.gossip .listener{color:var(--steel)}
-.gossip .flow{font-family:'JetBrains Mono'; color:var(--dim); text-align:center; padding-top:3px}
-.gossip .rumor{font-size:16.5px}
-.gossip .scene{display:block; color:var(--dim); font-style:italic; font-size:13.5px; margin-top:6px}
+.gossiplist{display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-top:4px}
+.whisper{position:relative; background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--dim);
+  padding:18px 20px 18px; display:flex; flex-direction:column; gap:0}
+.whisper--political{border-left-color:var(--steel)}
+.whisper--jules{border-left-color:var(--gold)}
+.whisper--personal{border-left-color:var(--moss)}
+.whisper-tag{font-family:'Oswald'; font-size:9.5px; letter-spacing:.24em; text-transform:uppercase; color:var(--dim); align-self:flex-start; margin-bottom:16px}
+.whisper--political .whisper-tag{color:var(--steel)}
+.whisper--jules .whisper-tag{color:var(--gold)}
+.whisper--personal .whisper-tag{color:var(--moss)}
+.whisper-flow{display:flex; align-items:center; gap:9px; flex-wrap:wrap; font-family:'Oswald'; font-size:11.5px; letter-spacing:.15em; text-transform:uppercase; line-height:1.3}
+.whisper-flow .wspeaker{color:var(--gold)}
+.whisper-flow .wlistener{color:var(--steel)}
+.whisper-flow .warrow{font-family:'JetBrains Mono'; color:var(--dim); font-size:12px}
+.whisper-scene{color:var(--dim); font-style:italic; font-size:13px; line-height:1.45; margin-top:7px}
+.whisper-quote{font-family:'Crimson Pro',serif; font-size:16.5px; line-height:1.5; color:var(--text); border:none; padding:0; margin:7px 0 0}
 @media(max-width:760px){
   .relrow{grid-template-columns:1fr; gap:6px}
   .relrow .fa{text-align:left}
   .warpanel{grid-template-columns:1fr; padding:24px}
   .battle{grid-template-columns:1fr}
   .battle .bloss{text-align:left}
-  .gossip{grid-template-columns:1fr; gap:4px}
-  .gossip .speaker{text-align:left}
-  .gossip .flow{display:none}
+  .gossiplist{grid-template-columns:1fr}
   .mem{grid-template-columns:1fr; gap:8px}
   .impwrap{max-width:200px}
   .killgrid{grid-template-columns:1fr}
@@ -212,10 +236,24 @@ footer{margin-top:80px; color:var(--dim); font-style:italic; font-size:14px; tex
   .page{padding:34px 26px}
 }
 @media(max-width:1180px){
-  .toc{left:auto; right:18px; top:auto; bottom:18px; transform:none; width:min(230px,calc(100vw - 36px))}
-  .toctoggle{display:block}
+  body{padding-top:54px}
+  section{scroll-margin-top:64px}
+  .toc{left:0; right:0; top:0; bottom:auto; transform:none; width:auto}
+  .tochead{margin:0; padding:12px 18px; border-bottom:1px solid var(--line2);
+    background:linear-gradient(180deg, var(--bg) 0%, var(--bg) 62%, rgba(20,22,26,.92) 100%)}
+  .toctoggle{display:block; order:-1}
+  .toc-title{display:none}
+  .toc-current{display:flex; align-items:center; gap:11px; min-width:0; font-family:'Oswald'; font-size:12.5px;
+    letter-spacing:.14em; text-transform:uppercase; color:var(--text)}
+  .toc-current .tocbadge{color:var(--bg); background:var(--gold); border-color:var(--gold)}
+  .toc-current .toc-current-title{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
   .toclist{display:none}
-  .toc.open .toclist{display:block}
+  .toc.open .toclist{display:block; position:fixed; inset:56px 0 0; z-index:22; overflow-y:auto;
+    background:var(--bg); padding:14px 16px calc(env(safe-area-inset-bottom) + 40px)}
+  .toc.open .toclink{font-size:15px; padding:15px 14px; border-bottom:1px solid var(--line)}
+  .toc.open .tocbadge{width:30px; height:26px; font-size:12px}
+  .toc.open .toctoggle{position:relative; z-index:23}
+  .toc.open .toc-scrim{display:block; position:fixed; inset:0; z-index:21; background:rgba(10,12,15,.6)}
 }
 @media (prefers-reduced-motion: reduce){ *{transition:none!important} }
 </style>
@@ -236,8 +274,13 @@ footer{margin-top:80px; color:var(--dim); font-style:italic; font-size:14px; tex
 </div>
 
 <nav class="toc" id="toc" aria-label="Contents">
-  <div class="tochead"><span id="toctitle">SkyrimNet contents</span><button class="toctoggle" id="toctoggle" aria-expanded="false" aria-label="Toggle contents">☰</button></div>
+  <div class="tochead">
+    <button class="toctoggle" id="toctoggle" aria-expanded="false" aria-label="Toggle contents">☰</button>
+    <span class="toc-current" id="toccurrent"></span>
+    <span class="toc-title" id="toctitle">SkyrimNet contents</span>
+  </div>
   <ol class="toclist" id="toclist"></ol>
+  <div class="toc-scrim" id="tocscrim"></div>
 </nav>
 
 <div id="tab-main">
@@ -248,7 +291,7 @@ footer{margin-top:80px; color:var(--dim); font-style:italic; font-size:14px; tex
   <div class="legend" id="legend"></div>
 </section>
 
-<section>
+<section id="sec-constellation">
   <h2><span class="n">II</span> Constellation of Memory</h2>
   <div class="sectionnote" id="skynote">All 64 memory embeddings (384-dim) projected to 2D. Nearby stars are memories SkyrimNet considers semantically similar; size is importance. Hover a star to read the memory.</div>
   <div class="chips" id="proj" style="margin-bottom:10px">
@@ -260,6 +303,7 @@ footer{margin-top:80px; color:var(--dim); font-style:italic; font-size:14px; tex
     <svg id="skysvg" viewBox="0 0 1000 620" role="img" aria-label="Scatter plot of memory embeddings"></svg>
     <div class="tip" id="tip"></div>
   </div>
+  <div class="skycaption">On mobile, memories may not be viewable. Use Section III to read memories instead.</div>
 </section>
 
 <section>
@@ -715,15 +759,24 @@ document.getElementById('gossipstats').innerHTML = [
   [counts.political,'political reports'],
   [counts.jules,'rumors of Jules']
 ].map(([n,l])=>`<div class="gossipstat"><b>${n}</b><span>${l}</span></div>`).join('');
+function fmtScene(s){
+  s = (s||'').trim().replace(/[.,;:–—\s]+$/,'');
+  if(!s) return '';
+  return s.charAt(0).toUpperCase() + s.slice(1) + ':';
+}
 function renderGossip(){
   const visible = GOSSIP.filter(g=>gossipFilter==='all'||gossipKind(g)===gossipFilter);
   document.getElementById('gossipnote').textContent =
     `${visible.length} of ${GOSSIP.length} traceable off-screen whispers shown. These are saved Dungeon Master social-life outputs, separate from the faction simulation but often carrying its news.`;
-  document.getElementById('gossiplist').innerHTML = visible.map(g=>`
-    <article class="gossip">
-      <div class="speaker">${g.speaker}</div><div class="flow">→</div><div class="listener">${g.listener}</div>
-      <div class="rumor">“${g.gossip}”<span class="scene">${g.scene}</span></div>
-    </article>`).join('');
+  document.getElementById('gossiplist').innerHTML = visible.map(g=>{
+    const kind = gossipKind(g);
+    return `<article class="whisper whisper--${kind}">
+      <div class="whisper-tag">${gossipKinds[kind]}</div>
+      <div class="whisper-flow"><span class="wspeaker">${g.speaker}</span><span class="warrow">→</span><span class="wlistener">${g.listener}</span></div>
+      <div class="whisper-scene">${fmtScene(g.scene)}</div>
+      <blockquote class="whisper-quote">“${g.gossip}”</blockquote>
+    </article>`;
+  }).join('');
 }
 document.getElementById('gossipchips').innerHTML = Object.entries(gossipKinds).map(([k,label])=>
   `<button class="chip ${k==='all'?'on':''}" data-g="${k}">${label} · ${counts[k]}</button>`).join('');
@@ -735,37 +788,69 @@ document.getElementById('gossipchips').addEventListener('click',e=>{
 });
 renderGossip();
 
+/* ---------- collapsible sections ---------- */
+[...document.querySelectorAll('#tab-main > section, #tab-intel > section')].forEach(section=>{
+  const h = section.querySelector('h2'); if(!h) return;
+  const caret = document.createElement('span');
+  caret.className = 'seccaret';
+  caret.setAttribute('role','button');
+  caret.setAttribute('aria-expanded','true');
+  caret.textContent = '▾';
+  h.insertBefore(caret, h.firstChild);
+  h.addEventListener('click',()=>{
+    const collapsed = section.classList.toggle('collapsed');
+    caret.setAttribute('aria-expanded', String(!collapsed));
+  });
+});
+
 /* ---------- floating table of contents + scrollspy ---------- */
 const toc = document.getElementById('toc');
 const tocList = document.getElementById('toclist');
 const tocTitle = document.getElementById('toctitle');
+const tocCurrent = document.getElementById('toccurrent');
+const tocScrim = document.getElementById('tocscrim');
 const tocToggle = document.getElementById('toctoggle');
 let tocTab = 'main';
 function tabSections(tab){ return [...document.querySelectorAll(`#tab-${tab} > section`)]; }
+function sectionNumber(section){
+  const n = section.querySelector('h2 .n');
+  return n ? n.textContent.trim() : '';
+}
 function sectionTitle(section){
   const h = section.querySelector('h2');
-  return h ? h.textContent.replace(/^\s*[IVXLC]+\s*/, '').trim() : 'Section';
+  if(!h) return 'Section';
+  const clone = h.cloneNode(true);
+  clone.querySelectorAll('.n, .seccaret').forEach(el=>el.remove());
+  return clone.textContent.trim();
 }
 function updateScrollspy(){
   const sections = tabSections(tocTab);
   let active = 0;
   sections.forEach((section,i)=>{ if(section.getBoundingClientRect().top <= 145) active=i; });
   tocList.querySelectorAll('.toclink').forEach((link,i)=>link.classList.toggle('on',i===active));
+  const cur = sections[active];
+  if(cur) tocCurrent.innerHTML =
+    `<span class="tocbadge">${sectionNumber(cur)}</span><span class="toc-current-title">${sectionTitle(cur)}</span>`;
 }
 function renderToc(tab){
   tocTab = tab;
   const sections = tabSections(tab);
   tocTitle.textContent = `${tab==='main'?'SkyrimNet':'IntelEngine'} contents`;
   tocList.innerHTML = sections.map((section,i)=>
-    `<li><button class="toclink" data-toc-index="${i}">${sectionTitle(section)}</button></li>`).join('');
+    `<li><button class="toclink" data-toc-index="${i}"><span class="tocbadge">${sectionNumber(section)}</span><span class="toctext">${sectionTitle(section)}</span></button></li>`).join('');
   updateScrollspy();
 }
+function closeToc(){ toc.classList.remove('open'); tocToggle.setAttribute('aria-expanded','false'); }
 tocList.addEventListener('click',e=>{
   const link=e.target.closest('.toclink'); if(!link) return;
   const section=tabSections(tocTab)[+link.dataset.tocIndex];
-  if(section) section.scrollIntoView({behavior:'smooth',block:'start'});
-  toc.classList.remove('open'); tocToggle.setAttribute('aria-expanded','false');
+  if(section){
+    if(section.classList.contains('collapsed')) section.querySelector('h2').click();
+    section.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  closeToc();
 });
+tocScrim.addEventListener('click',closeToc);
 tocToggle.addEventListener('click',()=>{
   const open=toc.classList.toggle('open');
   tocToggle.setAttribute('aria-expanded',String(open));
