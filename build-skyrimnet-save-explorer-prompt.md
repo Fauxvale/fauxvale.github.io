@@ -80,8 +80,10 @@ source for the **IntelEngine tab**. Confirm these tables:
   (e.g. `war_declaration`, `border_skirmish`, `espionage`, `assassination_attempt`), `description`,
   `relation_delta` (a signed integer), `game_time`.
 
-If I also happen to have a small **`political_state.json`**, it's a clean mirror of the same faction/war
-state and you may use it as a convenience — but the IntelEngine DB is authoritative.
+If I also happen to have a small **`political_state.json`**, use it for **faction identity** — display
+names, leaders, and holds — which give you readable faction labels for the relations/chronicle sections. It
+also mirrors the current war/relations state as a convenience, but the IntelEngine DB is authoritative for
+the numbers.
 
 ### Step 3 — the SkyrimNet logs
 
@@ -187,8 +189,11 @@ The same `text_factory = bytes` trick applies to any SkyrimNet DB you inspect wi
 
 ### Gossip payload (`gossipdata`)
 
-An array of `{ speaker, listener, rumor, scene }` from the `intel_story_dm` log blocks. Empty if no log
-was provided.
+An array of `{ speaker, listener, rumor, scene }` from the successful `npc_gossip` records in the
+`intel_story_dm` log blocks (`speaker`=`npc`, `listener`=`npc2`, `scene`=`narration`, `rumor`=`gossip`).
+Keep only **distinct** exchanges (dedupe repeats). Empty if no log was provided. Displayed gossip must come
+**only** from these saved outputs — the dialogue/input logs are corroborating provenance (the rule that
+every rumor traces to real in-world information), not a source of new rumors.
 
 ---
 
@@ -244,8 +249,17 @@ double-clicking the file offline.
 3. **Battles** — `battles` rows: location, attacker/defender, and each side's losses with the narrative.
 4. **Chronicle of Provocations** — `events` rows in time order: an event-type tag, the description, the
    faction pair, and the signed `relation_delta` (red for negative).
-5. **Whispers Beyond the Road** — `gossipdata`: speaker → listener → rumor, with the scene in italics
-   beneath. If no log was uploaded, hide this section and note why.
+5. **Whispers Beyond the Road** — `gossipdata`: speaker → listener → rumor rows, with the scene in italics
+   beneath. **Classify each whisper** (at render time) into one of three buckets and show a summary count +
+   filter chips for each:
+   - **About the player** — references the player character (by name, an alias/epithet used for them, or a
+     closely associated NPC).
+   - **Political** — references factions, leaders, war, tariffs, named political locations, or related terms.
+   - **Personal** — everything else.
+
+   Derive these terms from the data (the player's name from `uuid_mappings`; faction names/leaders/holds
+   from IntelEngine + `political_state.json`) rather than hardcoding any character. If no log was uploaded,
+   hide this section and note why.
 
 ### Footer
 
