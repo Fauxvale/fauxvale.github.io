@@ -152,9 +152,11 @@ footer{margin-top:80px; color:var(--dim); font-style:italic; font-size:14px; tex
 .tochead{display:flex; align-items:center; justify-content:space-between; padding:15px 16px 13px; border-bottom:1px solid var(--line)}
 .tochead span{font-family:'Oswald'; font-size:12px; letter-spacing:.22em; text-transform:uppercase; color:var(--gold)}
 .toctoggle{display:none; background:none; border:none; color:var(--dim); font:18px/1 'Oswald'; cursor:pointer}
-.toclist{list-style:none; padding:10px 0}.toclink{display:block; width:100%; border:0; border-left:3px solid transparent; background:none; color:var(--dim); cursor:pointer;
+.toclist{list-style:none; padding:10px 0}
+.toclink{display:block; width:100%; border:0; border-left:3px solid transparent; background:none; color:var(--dim); cursor:pointer;
   font-family:'Oswald'; font-size:12px; letter-spacing:.13em; line-height:1.35; text-align:left; text-transform:uppercase; padding:10px 15px}
-.toclink:hover{color:var(--text)}.toclink.on{color:var(--gold); border-left-color:var(--gold); background:rgba(201,164,92,.08)}
+.toclink:hover{color:var(--text)}
+.toclink.on{color:var(--gold); border-left-color:var(--gold); background:rgba(201,164,92,.08)}
 
 /* intelengine */
 .relrow{display:grid; grid-template-columns:1fr 300px 1fr 90px; gap:18px; align-items:center; padding:14px 4px; border-bottom:1px solid var(--line)}
@@ -188,18 +190,20 @@ footer{margin-top:80px; color:var(--dim); font-style:italic; font-size:14px; tex
 .gossiplist{border-top:1px solid var(--line)}
 .gossip{display:grid; grid-template-columns:180px 38px 180px 1fr; gap:14px; align-items:start; padding:17px 4px; border-bottom:1px solid var(--line)}
 .gossip .speaker,.gossip .listener{font-family:'Oswald'; font-size:12px; letter-spacing:.16em; text-transform:uppercase; padding-top:3px}
-.gossip .speaker{color:var(--gold); text-align:right}.gossip .listener{color:var(--steel)}
+.gossip .speaker{color:var(--gold); text-align:right}
+.gossip .listener{color:var(--steel)}
 .gossip .flow{font-family:'JetBrains Mono'; color:var(--dim); text-align:center; padding-top:3px}
-.gossip .rumor{font-size:16.5px}.gossip .scene{display:block; color:var(--dim); font-style:italic; font-size:13.5px; margin-top:6px}
+.gossip .rumor{font-size:16.5px}
+.gossip .scene{display:block; color:var(--dim); font-style:italic; font-size:13.5px; margin-top:6px}
 @media(max-width:760px){
   .relrow{grid-template-columns:1fr; gap:6px}
   .relrow .fa{text-align:left}
   .warpanel{grid-template-columns:1fr; padding:24px}
   .battle{grid-template-columns:1fr}
   .battle .bloss{text-align:left}
-  .gossip{grid-template-columns:1fr; gap:4px}.gossip .speaker{text-align:left}.gossip .flow{display:none}
-}
-@media(max-width:760px){
+  .gossip{grid-template-columns:1fr; gap:4px}
+  .gossip .speaker{text-align:left}
+  .gossip .flow{display:none}
   .mem{grid-template-columns:1fr; gap:8px}
   .impwrap{max-width:200px}
   .killgrid{grid-template-columns:1fr}
@@ -209,7 +213,9 @@ footer{margin-top:80px; color:var(--dim); font-style:italic; font-size:14px; tex
 }
 @media(max-width:1180px){
   .toc{left:auto; right:18px; top:auto; bottom:18px; transform:none; width:min(230px,calc(100vw - 36px))}
-  .toctoggle{display:block}.toclist{display:none}.toc.open .toclist{display:block}
+  .toctoggle{display:block}
+  .toclist{display:none}
+  .toc.open .toclist{display:block}
 }
 @media (prefers-reduced-motion: reduce){ *{transition:none!important} }
 </style>
@@ -682,7 +688,7 @@ document.getElementById('warpanel').innerHTML =
 
 document.getElementById('battles').innerHTML = IE.battles.map(b=>`
   <div class="battle">
-    <div class="bwhere" style="color:${fc(b.attacker)}">${b.location_name}<span>${b.date} \u00B7 ${b.result.replace('_',' ')}</span></div>
+    <div class="bwhere" style="color:${fc(b.attacker)}">${b.location_name}<span>${b.date} \u00B7 ${b.result.replace(/_/g,' ')}</span></div>
     <div class="txt">${b.narrative}</div>
     <div class="bloss"><b style="color:${fc(b.attacker)}">${b.attacker}</b> lost <b>${b.attacker_losses}</b><br>
       <b style="color:${fc(b.defender)}">${b.defender}</b> lost <b>${b.defender_losses}</b></div>
