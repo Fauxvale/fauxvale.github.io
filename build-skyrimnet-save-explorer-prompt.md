@@ -221,7 +221,23 @@ libraries. The only external reference allowed is a Google Fonts `<link>`. Embed
 `<script type="application/json">` blocks and render everything with **vanilla JS**. It must open by
 double-clicking the file offline.
 
-### Look & feel (Skyrim illuminated-manuscript aesthetic)
+### Look & feel
+
+**First, ask me how I want the site themed** — before you settle on any colors, fonts, or overall styling,
+give me two choices:
+
+1. **Preset theme (Skyrim illuminated-manuscript)** — the default look defined below. If I pick this, just
+   use the palette, fonts, and motifs exactly as specified; no need to ask anything further about design.
+2. **My own theme** — I describe a color scheme and/or overall design I'd prefer. If I pick this, **invoke
+   your design skill** (e.g. the artifact/design skill, if available) and design the site to my
+   specification — palette, typography, and styling — while keeping the same structure, sections, and
+   interactions described here. If no design skill is available, apply solid visual-design fundamentals to
+   my brief. Show me the resulting palette/type choices before building the full page.
+
+Everything below is the **preset theme** — use it verbatim only if I chose option 1 (and as the structural
+baseline in either case).
+
+#### Preset theme (Skyrim illuminated-manuscript aesthetic)
 
 - **Fonts:** `Oswald` (uppercase, letter-spaced headings/labels), `Crimson Pro` (serif body),
   `JetBrains Mono` (numbers/metadata).
