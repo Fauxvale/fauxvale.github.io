@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Fauxvale's little corner of the web.">
+    <title>Fauxvale</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        --page-bg: #1b1121;
+        --page-gradient: radial-gradient(circle at top, #7e46f5, #1b1121 58%);
+        --bg-image-opacity: 0.38;
+        --bg-image-hue: 286deg;
+        --bg-image-sat: 1.935;
+        --bg-image-bright: 0.62;
+        --panel-bg: rgb(34 17 49 / 88%);
+        --panel-border: #ba96f9;
+        --text-color: #f4edff;
+        --link-color: #d6befc;
+        --link-hover: #ffffff;
+        --control-bg: rgb(17 11 24 / 88%);
+        --control-border: rgb(255 255 255 / 14%);
+        --control-active-bg: #ba96f9;
+        --control-active-text: #1b1121;
+        background: var(--page-bg);
+        color: var(--text-color);
+      }
+
+      :root[data-theme="magenta"] {
+        --page-bg: #20111e;
+        --page-gradient: radial-gradient(circle at top, #852267, #20111e 55%);
+        --bg-image-opacity: 0.38;
+        --bg-image-hue: 326deg;
+        --bg-image-sat: 2.07;
+        --bg-image-bright: 0.6;
+        --panel-bg: rgb(45 15 40 / 88%);
+        --panel-border: #e66eb8;
+        --text-color: #fef4fc;
+        --link-color: #faa1da;
+        --link-hover: #fff;
+        --control-bg: rgb(20 8 18 / 88%);
+        --control-border: rgb(255 255 255 / 14%);
+        --control-active-bg: #e66eb8;
+        --control-active-text: #20111e;
+      }
+
+      :root[data-theme="green"] {
+        --page-bg: #112018;
+        --page-gradient: radial-gradient(circle at top, #36b872, #112018 58%);
+        --bg-image-opacity: 0.38;
+        --bg-image-hue: 132deg;
+        --bg-image-sat: 2.115;
+        --bg-image-bright: 0.61;
+        --panel-bg: rgb(14 37 28 / 88%);
+        --panel-border: #84f8b3;
+        --text-color: #f0fef6;
+        --link-color: #9ff0c1;
+        --link-hover: #ffffff;
+        --control-bg: rgb(8 19 14 / 88%);
+        --control-border: rgb(255 255 255 / 14%);
+        --control-active-bg: #84f8b3;
+        --control-active-text: #112018;
+      }
+
+      :root[data-theme="blue"] {
+        --page-bg: #0f1a2a;
+        --page-gradient: radial-gradient(circle at top, #4484ed, #0f1a2a 58%);
+        --bg-image-opacity: 0.38;
+        --bg-image-hue: 205deg;
+        --bg-image-sat: 2.025;
+        --bg-image-bright: 0.61;
+        --panel-bg: rgb(12 26 46 / 88%);
+        --panel-border: #8cb9f9;
+        --text-color: #f0f6fe;
+        --link-color: #bcd6fb;
+        --link-hover: #ffffff;
+        --control-bg: rgb(7 16 28 / 88%);
+        --control-border: rgb(255 255 255 / 14%);
+        --control-active-bg: #8cb9f9;
+        --control-active-text: #0f1a2a;
+      }
+
+      :root[data-theme="grey"] {
+        --page-bg: #161616;
+        --page-gradient: radial-gradient(circle at top, #6a6a6a, #161616 58%);
+        --bg-image-opacity: 0.32;
+        --bg-image-hue: 0deg;
+        --bg-image-sat: 0.15;
+        --bg-image-bright: 0.78;
+        --panel-bg: rgb(27 27 27 / 88%);
+        --panel-border: #bdbdbd;
+        --text-color: #f3f3f3;
+        --link-color: #d6d6d6;
+        --link-hover: #ffffff;
+        --control-bg: rgb(15 15 15 / 88%);
+        --control-border: rgb(255 255 255 / 14%);
+        --control-active-bg: #d0d0d0;
+        --control-active-text: #161616;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        padding: 2rem 2rem 6rem;
+        background: var(--page-gradient);
+        position: relative;
+        isolation: isolate;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -2;
+        background:
+          linear-gradient(rgb(0 0 0 / 18%), rgb(0 0 0 / 32%)),
+          url("clawdoor.png") center center / cover no-repeat;
+        filter: grayscale(1) sepia(1) hue-rotate(var(--bg-image-hue)) saturate(var(--bg-image-sat)) brightness(var(--bg-image-bright));
+        opacity: var(--bg-image-opacity);
+        transform: scale(1.04);
+        pointer-events: none;
+      }
+
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        background: linear-gradient(rgb(0 0 0 / 6%), rgb(0 0 0 / 30%));
+        }
+
+      main {
+        width: min(100%, 42rem);
+        padding: clamp(1.5rem, 5vw, 3rem) clamp(2rem, 7vw, 4rem);
+        border: 1px solid var(--panel-border);
+        border-radius: 1.25rem;
+        background: var(--panel-bg);
+        box-shadow: 0 1.5rem 4rem rgb(0 0 0 / 35%);
+      }
+
+      h1 {
+        font-size: clamp(2.5rem, 8vw, 4.5rem);
+        margin: 0 0 .5rem;
+        text-align: center;
+      }
+      p { font-size: 1.1rem; line-height: 1.65; }
+      h2 { margin-top: 2rem; font-size: 1.25rem; }
+
+      ul { padding-left: 1.25rem; line-height: 1.9; }
+      li { font-weight: 700; }
+      a { color: var(--link-color); text-underline-offset: .2em; }
+      a:hover, a:focus-visible { color: var(--link-hover); }
+
+      .theme-switcher {
+        position: fixed;
+        left: 50%;
+        bottom: 1rem;
+        z-index: 10;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .6rem .75rem;
+        border: 1px solid var(--control-border);
+        border-radius: 999px;
+        background: var(--control-bg);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 1rem 2.5rem rgb(0 0 0 / 30%);
+      }
+
+      .theme-switcher span {
+        font-size: .95rem;
+        opacity: .9;
+      }
+
+      .theme-switcher button {
+        appearance: none;
+        border: 1px solid transparent;
+        border-radius: 50%;
+        width: 1.5rem;
+        height: 1.5rem;
+        padding: 0;
+        font: 0/0 sans-serif;
+        color: transparent;
+        cursor: pointer;
+        transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+      }
+
+      .theme-switcher button:hover,
+      .theme-switcher button:focus-visible {
+        transform: translateY(-1px);
+        border-color: var(--control-border);
+      }
+
+      .theme-switcher button[aria-pressed="true"] {
+        box-shadow: 0 0 0 2px var(--control-bg), 0 0 0 4px var(--text-color);
+      }
+
+      .theme-switcher button[data-theme="magenta"] {
+        background: #e66eb8;
+      }
+
+      .theme-switcher button[data-theme="purple"] {
+        background: #ba96f9;
+      }
+
+      .theme-switcher button[data-theme="green"] {
+        background: #84f8b3;
+      }
+
+      .theme-switcher button[data-theme="blue"] {
+        background: #8cb9f9;
+      }
+
+      .theme-switcher button[data-theme="grey"] {
+        background: #c9c9c9;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Hello World</h1>
+      <p>My name is Fauxvale (she/her), and I like computers and video and being silly and having fun.</p>
+
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://www.youtube.com/@Fauxvale">YouTube</a></li>
+        <li><a href="https://steamcommunity.com/id/Fauxvale/">Steam</a></li>
+        <li><a href="https://www.nexusmods.com/profile/Fauxvale">Nexus Mods</a></li>
+        <li><a href="https://discord.com/app" title="Discord tag: @Fauxvale">Discord: @Fauxvale</a></li>
+      </ul>
+
+      <h2>Subpages</h2>
+      <ul>
+        <li><a href="https://fauxvale.github.io/SkyrimNet-Save-Explorer-Jules-Fauxvale.html">Fauxvale's SkyrimNet Save Observer (vibe coded slop, based on data generated by vibe coded slop)</a><p></p></li>
+      </ul>
+    </main>
+
+    <nav class="theme-switcher" aria-label="Color theme selector">
+      <span>Theme</span>
+      <button type="button" data-theme="magenta" aria-label="Magenta theme" aria-pressed="false" title="Magenta theme"></button>
+      <button type="button" data-theme="purple" aria-label="Purple theme" aria-pressed="true" title="Purple theme"></button>
+      <button type="button" data-theme="green" aria-label="Green theme" aria-pressed="false" title="Green theme"></button>
+      <button type="button" data-theme="blue" aria-label="Blue theme" aria-pressed="false" title="Blue theme"></button>
+      <button type="button" data-theme="grey" aria-label="Grey theme" aria-pressed="false" title="Grey theme"></button>
+    </nav>
+
+    <script>
+      const themeButtons = document.querySelectorAll('.theme-switcher button');
+
+      function setTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+
+        themeButtons.forEach((button) => {
+          button.setAttribute('aria-pressed', String(button.dataset.theme === theme));
+        });
+      }
+
+      setTheme('purple');
+
+      themeButtons.forEach((button) => {
+        button.addEventListener('click', () => setTheme(button.dataset.theme));
+      });
+    </script>
+  </body>
+</html>
