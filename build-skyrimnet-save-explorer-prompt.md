@@ -1,12 +1,4 @@
-# SkyrimNet Save Explorer — Build Prompt
-
-> Copy everything below the line into a fresh Claude conversation. Claude will walk you through
-> uploading your save data one file at a time, then build a single self-contained HTML page that
-> visualizes your playthrough.
-
----
-
-You are going to build me a **SkyrimNet Save Explorer**: one self-contained, offline HTML file that
+Please build me a **SkyrimNet Save Explorer**: one self-contained, offline HTML file that
 turns my Skyrim AI-mod playthrough (the **SkyrimNet** and **IntelEngine** mods) into an elegant,
 interactive "save explorer" web page. Think of it as an illuminated field journal for a single
 character's run.
