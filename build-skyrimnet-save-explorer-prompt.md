@@ -229,14 +229,15 @@ double-clicking the file offline.
    non-matching stars, **hover tooltips** showing the memory text + meta, and **draggable stars** with a
    light spring simulation (home-spring + edge-spring + damping) so neighbors tug along. If reduced motion
    is set, place stars statically.
-3. **The Memories Themselves** — the memories as a list grouped by day: actor + emotion on the left, the
+3. **The Memories We Made** — the memories as a list grouped by day: actor + emotion on the left, the
    text (with location) in the middle, an **importance bar** on the right. The same actor/type filters
    apply here.
-4. **Blood Ledger** — kills parsed from `events` where `event_type = 'death'` (killer/victim from
-   `event_data`). Show killer → victim rows, or an aggregated leaderboard by killer, as horizontal blood-
-   red bars with counts. Resolve names via `uuid_mappings` where needed.
+4. **Blood Leaderboard** — kills parsed from `events` where `event_type = 'death'` (killer/victim from
+   `event_data`). Show an aggregated leaderboard by killer, as horizontal blood-
+   red bars with counts of what each killer killed and how many. Resolve names via `uuid_mappings` where needed.
 5. **The Diary** — render `diary_entries.content` as a centered "journal page" (bordered panel, drop-cap
-   first letter, italic place/date header). If several entries exist, show them in order.
+   first letter, italic place/date header). If several entries exist, show them in a book-like stack of entries
+   that can be flipped through, like a pseudo-book.
 6. **OmniSight Field Notes** — a grid of cards from `omnisight_screenshots`: subject name, location/metadata
    line, and the description prose, with a "show more" control if there are many. Text only (no images).
 
