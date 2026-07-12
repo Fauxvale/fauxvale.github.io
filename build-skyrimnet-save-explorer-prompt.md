@@ -144,10 +144,19 @@ Build three JSON payloads to embed in the page. Derive everything from my files.
     `book_read`, `furniture_used`, `item_given`
   - **Followers & tasks** (grey): anything else
 - **`memories`** — an array; for each memory: `content`, `actor` (resolved name via `uuid_mappings`),
-  `emotion`, `location`, `imp` (= `importance_score`), `type` (= `memory_type`), `day` (from its
-  `game_time`/related event), and 2-D coordinates `x, y` and `ux, uy` (below).
+  `emotion`, `location`, `imp` (= `importance_score`), `type` (= `memory_type`), `day` (an in-game day
+  label from `game_time`/related event), `gt` (raw `game_time`, for chronological sorting), and 2-D
+  coordinates `x, y` and `ux, uy` (below).
 - **`edges`** — an array of `[i, j, similarity]`: for each memory, its **2 nearest neighbors** by cosine
   similarity in the full embedding space, with the similarity value.
+- **`leaderboard`** — kills aggregated per killer, ranked by total. Each entry:
+  `{ killer, total, cats: { <category>: count }, victims: [[victim_name, count], …] }`. Parse `death`
+  events (killer/victim from `event_data`), resolve names via `uuid_mappings`, and bucket each victim into a
+  small fixed set of categories — **People, Undead, Wildlife, Monsters, Dragon** — for the stacked bar.
+- **`diary`** — the diary as `{ actor, loc, content }` (or an array of these if there are several entries).
+  Keep `content`'s paragraph breaks and any `*emphasis*` markers intact.
+- **`screenshots`** — OmniSight captures as `{ name, loc, ts, desc }` from `omnisight_screenshots`
+  (`ts` = the capture date/time string).
 
 **Computing the projection (`x,y` / `ux,uy`) and edges** — do all of this offline in Python; the browser
 only ever receives coordinates, edge indices, and similarity weights, never the raw vectors:
@@ -182,7 +191,8 @@ The same `text_factory = bytes` trick applies to any SkyrimNet DB you inspect wi
 
 - **`relations`** — from `faction_relations`: each pair with its signed `relation_score` and whether a war
   is active.
-- **`war`** — from `faction_wars`: the belligerents, `battles_fought`, and both sides' morale & strength.
+- **`war`** — from `faction_wars`: the belligerents, `battles_fought`, the war's start date, and both
+  sides' morale & strength.
 - **`battles`** — from `war_battles`: location, attacker/defender, result, losses on each side, narrative.
 - **`events`** — from `faction_events`: the provocation chronicle — faction pair, `event_type`,
   `description`, signed `relation_delta`, ordered by `game_time`.
@@ -229,15 +239,20 @@ double-clicking the file offline.
    non-matching stars, **hover tooltips** showing the memory text + meta, and **draggable stars** with a
    light spring simulation (home-spring + edge-spring + damping) so neighbors tug along. If reduced motion
    is set, place stars statically.
-3. **The Memories We Made** — the memories as a list grouped by day: actor + emotion on the left, the
-   text (with location) in the middle, an **importance bar** on the right. The same actor/type filters
-   apply here.
-4. **Blood Leaderboard** — kills parsed from `events` where `event_type = 'death'` (killer/victim from
-   `event_data`). Show an aggregated leaderboard by killer, as horizontal blood-
-   red bars with counts of what each killer killed and how many. Resolve names via `uuid_mappings` where needed.
-5. **The Diary** — render `diary_entries.content` as a centered "journal page" (bordered panel, drop-cap
-   first letter, italic place/date header). If several entries exist, show them in a book-like stack of entries
-   that can be flipped through, like a pseudo-book.
+3. **The Memories We Made** — the memories as a list, grouped by in-game day (each day gets a heading with
+   its memory count and, if one is available, a one-line summary of that day). Each row: actor +
+   `type · emotion` on the left, the memory text with its location beneath in the middle, and an
+   **importance bar** (labelled `imp <score>`) on the right. Two chip rows drive it — **type filters**
+   (All types + one per `memory_type`, with counts) and a **sort toggle** (chronological / by importance) —
+   and the constellation's actor filter applies here too. Show a live "N of M memories shown" note.
+4. **Blood Leaderboard** — the `leaderboard` payload as a ranked table of killers: a rank number
+   (`01`, `02`, …), the killer's name (colored by their actor color), their **total kills**, a horizontal
+   **stacked bar segmented by victim category** (People / Undead / Wildlife / Monsters / Dragon, each its
+   own color) with a matching legend above, and a row of **victim chips** (`Bandit ×3`, `Draugr ×2`, …).
+5. **The Diary** — render each diary entry as a centered "journal page": a bordered/inset panel, a header
+   with the author and place, a **drop-cap** first letter, paragraphs split on blank lines, and `*starred*`
+   phrases shown as italic emphasis. If several entries exist, present them as a book-like stack that can be
+   flipped through (a pseudo-book). If there is no diary entry, omit the section.
 6. **OmniSight Field Notes** — a grid of cards from `omnisight_screenshots`: subject name, location/metadata
    line, and the description prose, with a "show more" control if there are many. Text only (no images).
 
@@ -245,22 +260,25 @@ double-clicking the file offline.
 
 1. **The Great Powers** — `relations` rows: faction A vs faction B with a **centered ± bar** (negative to
    the blood side, positive to the gold/moss side) and the numeric score; flag any pair at war.
-2. **The War** — a panel for the active `war`: the two belligerents with `vs`, plus **morale** and
-   **strength** gauges for each side and the battle count.
+2. **The War** — a panel for the active `war`: an intro note (who declared it and when, battles fought so
+   far, victor status), then the two belligerents either side of a `Versus`, each with **morale** and
+   **strength** gauges (0–100 bars).
 3. **Battles** — `battles` rows: location, attacker/defender, and each side's losses with the narrative.
 4. **Chronicle of Provocations** — `events` rows in time order: an event-type tag, the description, the
    faction pair, and the signed `relation_delta` (red for negative).
-5. **Whispers Beyond the Road** — `gossipdata`: speaker → listener → rumor rows, with the scene in italics
-   beneath. **Classify each whisper** (at render time) into one of three buckets and show a summary count +
-   filter chips for each:
+5. **Whispers Beyond the Road** — `gossipdata` as speaker → listener → rumor rows (the rumor quoted, with
+   the scene in italics beneath). Above the list, a row of **summary stat blocks** (total recorded whispers,
+   distinct voices involved, political-report count, player-rumor count) and a row of **filter chips**.
+   **Classify each whisper** (at render time, by scanning the rumor text) into:
    - **About the player** — references the player character (by name, an alias/epithet used for them, or a
      closely associated NPC).
    - **Political** — references factions, leaders, war, tariffs, named political locations, or related terms.
    - **Personal** — everything else.
 
-   Derive these terms from the data (the player's name from `uuid_mappings`; faction names/leaders/holds
-   from IntelEngine + `political_state.json`) rather than hardcoding any character. If no log was uploaded,
-   hide this section and note why.
+   The chips are **All** + those three buckets, each showing its count. Derive the matching terms from the
+   data (the player's name from `uuid_mappings`; faction names/leaders/holds from IntelEngine +
+   `political_state.json`) rather than hardcoding any character. If no log was uploaded, hide this section
+   and note why.
 
 ### Footer
 
