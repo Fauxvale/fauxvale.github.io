@@ -138,6 +138,8 @@ section.collapsed h2{margin-bottom:0}
 /* omnisight */
 .shots{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line); border:1px solid var(--line)}
 .shot{background:var(--panel); padding:20px 22px}
+.shot .thumb{margin:0 0 12px; border:1px solid var(--line); overflow:hidden; background:#111}
+.shot .thumb img{display:block; width:100%; aspect-ratio:16/9; object-fit:cover}
 .shot .lbl{font-size:11px; letter-spacing:.22em; color:var(--gold)}
 .shot .meta{font-family:'Oswald'; font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--dim); margin:4px 0 10px}
 .shot .desc{font-size:15px; color:var(--text); opacity:.9}
@@ -671,9 +673,41 @@ if (D.diary){
 
 /* ---------- omnisight ---------- */
 let shown = 8;
+const shotImageMap = {
+  "Bleak Falls Temple":"omnisight-images/location_BleakFallsBarrow01.png",
+  "Bleak Falls Sanctum":"omnisight-images/location_BleakFallsBarrow02.png",
+  "Riverwood Trader":"omnisight-images/location_RiverwoodRiverwoodTrader.png",
+  "Sleeping Giant Inn":"omnisight-images/location_RiverwoodSleepingGiantInn.png",
+  "High Hrothgar":"omnisight-images/location_HighHrothgar.png",
+  "Vilemyr Inn":"omnisight-images/location_IvarsteadVilemyrInn.png",
+  "The Bannered Mare":"omnisight-images/location_WhiterunBanneredMare.png",
+  "Warmaiden's":"omnisight-images/location_WhiterunWarmaidens.png",
+  "Belethor's General Goods":"omnisight-images/location_WhiterunBelethorsGeneralGoods.png",
+  "Arcadia's Cauldron":"omnisight-images/location_WhiterunArcadiasCauldron.png",
+  "Dragonsreach":"omnisight-images/location_WhiterunDragonsreach.png",
+  "Clockwork Castle Hall":"omnisight-images/location_CLWCastleMainHall.png",
+  "Pinepeak Cavern":"omnisight-images/location_PinepeakCavern01.png",
+  "Embershard Mine":"omnisight-images/location_EmbershardMine01.png",
+  "Fletcher":"omnisight-images/location_SolitudeFletcher.png",
+  "Castle Dour":"omnisight-images/location_SolitudeCastleDour.png",
+  "Castle Dour Dungeon":"omnisight-images/location_SolitudeJail01.png",
+  "Blue Palace":"omnisight-images/location_SolitudeBluePalaceCourtyard.png",
+  "Bards College":"omnisight-images/location_SolitudeBardsCollege.png",
+  "The Winking Skeever":"omnisight-images/location_SolitudeWinkingSkeever.png",
+  "Ustengrav":"omnisight-images/location_Ustengrav01.png",
+  "Ustengrav Depths":"omnisight-images/location_Ustengrav02.png",
+  "Dead Men's Respite":"omnisight-images/location_DeadMensRespite01.png"
+};
+function shotImageSrc(s){
+  const key = s.name || s.loc || '';
+  const direct = shotImageMap[key] || shotImageMap[s.loc] || shotImageMap[s.name];
+  if (direct) return direct;
+  const slug = String(s.loc || s.name || '').replace(/[^A-Za-z0-9]+/g,'');
+  return `omnisight-images/location_${slug}.png`;
+}
 function renderShots(){
   document.getElementById('shots').innerHTML = D.screenshots.slice(0,shown).map(s=>`
-    <div class="shot"><div class="lbl">${s.name||'Unknown'}</div>
+    <div class="shot"><div class="thumb"><img src="${shotImageSrc(s)}" alt="${s.name||'Unknown'}" loading="lazy" decoding="async"></div><div class="lbl">${s.name||'Unknown'}</div>
     <div class="meta">${[s.loc!==s.name?s.loc:'',s.ts].filter(Boolean).join(' \u00B7 ')}</div>
     <div class="desc">${s.desc}</div></div>`).join('');
   document.getElementById('moreshots').style.display = shown>=D.screenshots.length?'none':'';
