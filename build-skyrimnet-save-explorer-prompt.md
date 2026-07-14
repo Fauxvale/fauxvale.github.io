@@ -7,8 +7,8 @@ The finished page has **two tabs**:
 
 - **SkyrimNet** — my character's lived experience: an event timeline, an interactive "constellation"
   of their memories, the memories themselves, a kill ledger, a diary page, OmniSight field notes (with a
-  distilled "portrait of the land" and matched local capture images), and — **when my logs contain them** —
-  the refactored story director summonses and road encounters section.
+  distilled "portrait of the land" and matched local capture images), and any other notable story beats
+  discovered in the logs.
 - **IntelEngine** — the political layer: faction relationships, a chronicle of provocations between
   factions, off-screen gossip, and — **only if my save actually has one** — an ongoing war and its battles.
 
@@ -100,9 +100,8 @@ Ask me for my **SkyrimNet logs**. Explain what each log offers so I can upload t
 whichever you actually need rather than demanding all of them:
 
 - **`openrouter_output.log`** (~1 MB — *recommended*) — the model's structured outputs. This is the only
-  source for the **gossip** and **Summons & Roads** sections, and a good source for diary/OmniSight text.
-  Use it for the refactored summons cards, but keep OmniSight images sourced from the local
-  `omnisight-images/` files.
+  source for the **gossip** section, and a good source for diary/OmniSight text. Keep OmniSight images
+  sourced from the local `omnisight-images/` files.
 - **`conversation_log.log`** (~78 KB) — the raw player↔NPC / NPC↔NPC dialogue transcript (corroboration only).
 - **`openrouter_input.log`** and its dated siblings (~4–13 MB each) — mostly the *prompts* sent to the
   model; large and largely redundant with the DBs. Usually **skip these**; they may be too big to upload.
@@ -132,14 +131,8 @@ Two families of objects matter:
    `npc` is the speaker, `npc2` the listener, `narration` the scene, `gossip` the rumor. (Some are
    `type:"npc_interaction"` with `fact1`/`fact2` instead — you may include those as memories exchanged.)
 
-2. **Story-director beats** — objects with `type:"quest"`, `type:"message"`, or `type:"road_encounter"`,
-  each with an `npc`, a `narration` scene, and (for quest/message) a `msgContent` body and a
-  `destination`/`questLocation`/`meetTime`. These drive the refactored **Summons & Roads** section, which
-  should be rendered as a responsive card grid with summary counts and filter chips for Quests, Summons,
-  and Roads.
-
-**If I don't provide logs, don't invent gossip or summonses** — hide or annotate those sections and tell me
-they were skipped for lack of a log file.
+**If I don't provide logs, don't invent gossip** — hide or annotate that section and tell me it was
+skipped for lack of a log file.
 
 ### Step 4 — external assets (optional)
 
@@ -274,12 +267,6 @@ log (`speaker`=`npc`, `listener`=`npc2`, `scene`=`narration`, `rumor`=`gossip`).
 exchanges (dedupe repeats). Empty if no log was provided. Displayed gossip must come **only** from these
 saved outputs — the dialogue/input logs are corroborating provenance, not a source of new rumors.
 
-### Summons & Roads payload (`summonsdata`)
-
-From the output log's story-director objects: `{ quests:[…], messages:[…], roads:[…] }`, deduped. For each,
-keep `npc` (the sender/traveller), the `scene` (`narration`), the `msg` body (`msgContent`, for quests and
-messages), and a destination/meet-time where present. Empty if no log was provided.
-
 ---
 
 ## Phase 3 — Build the page
@@ -382,11 +369,6 @@ base64 data URIs. Embed the payloads as `<script type="application/json">` block
    from `screenshots`: each card should include the matched image from `omnisight-images/`, the subject name,
    the location/metadata line, and the description prose, with a "show more"/"show all" control if there are
    many.
-7. **Summons & Roads** *(only if the log yielded story-director objects)* — the `summonsdata`: a refactored,
-   filterable card section for the quest hooks, the messengers/summonses sent to the player, and NPCs setting
-   out on the roads. Each card shows the sender (and a kind label — "Quest offered" / "Summons" / "On the
-   road"), the scene in italics, the message body as a quote, and the destination/meet-time. Omit the
-   section entirely if there's no log.
 
 ### IntelEngine tab — sections
 
@@ -452,7 +434,7 @@ contents. Only add sections I've approved — never invent one unprompted.
 ### Footer
 
 A short italic footer naming the source database files (use the actual uploaded filenames) and noting that
-off-screen gossip and summonses are reconstructed from the saved model outputs.
+off-screen gossip is reconstructed from the saved model outputs.
 
 ---
 
@@ -472,6 +454,6 @@ off-screen gossip and summonses are reconstructed from the saved model outputs.
 - Confirm the character name, day count, "The Adventures of …" title, and every stat came from **my** data —
   not from any example — and that the OmniSight summary is grounded in my actual captures.
 - Tell me plainly what you had to fall back on (e.g. "UMAP not installed, used t-SNE", "no log provided,
-  gossip and Summons & Roads omitted", "no OmniSight images provided, used text-only capture cards")
+  gossip omitted", "no OmniSight images provided, used text-only capture cards")
   rather than papering over gaps.
 - Then give me the finished `.html` file.
