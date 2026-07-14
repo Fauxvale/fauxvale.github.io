@@ -390,6 +390,9 @@
         justify-content: center;
         line-height: 1;
       }
+      /* Allow the content column to shrink so long code lines can't force
+         the whole grid (and page) wider than the viewport on mobile. */
+      .step-body { min-width: 0; }
       .step h3 {
         font-family: var(--display);
         font-weight: 600;
@@ -440,6 +443,8 @@
         border-radius: 3px;
         padding: .7rem .9rem;
         margin: 0;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
         overflow-x: auto;
       }
       .path-note {
