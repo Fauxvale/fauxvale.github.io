@@ -163,7 +163,8 @@ to upload my OmniSight screenshots; if I say yes, I’ll provide the images and 
 
 Use only assets I actually provide through the chat — never fetch, download, or invent them. For **my own
 theme**, assets are optional: ask only when they fit what I described, and don't demand them. For OmniSight
-image embeds, ask first whether I want to upload the screenshots, then place the provided image files in
+image embeds, ask first whether I want to upload the screenshots (specify that I should upload them as one 
+archive, rather than uploading individual images), then place the provided image files in
 `omnisight-images/` and wire them into the cards.
 
 ---
