@@ -447,6 +447,33 @@
         overflow-wrap: anywhere;
         overflow-x: auto;
       }
+      /* Code block with copy button */
+      .code { position: relative; }
+      .code pre { padding-right: 3.6rem; }
+      .copy-btn {
+        position: absolute;
+        top: .4rem;
+        right: .4rem;
+        font-family: var(--display);
+        font-size: .58rem;
+        font-weight: 600;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        color: var(--gold-deep);
+        background: var(--seal-bg);
+        border: 1px solid var(--gold-soft);
+        border-radius: 3px;
+        padding: .32rem .52rem;
+        cursor: pointer;
+        line-height: 1;
+        transition: color 120ms ease, border-color 120ms ease, background 120ms ease;
+      }
+      .copy-btn:hover { color: var(--ink); border-color: var(--gold); background: var(--gold-soft); }
+      .copy-btn.copied {
+        color: var(--arcane-deep);
+        border-color: var(--arcane);
+        background: transparent;
+      }
       .path-note {
         font-size: .95rem;
         color: var(--sepia);
@@ -630,7 +657,10 @@
               <h3>Get the skill</h3>
               <p>Clone the repository (or use the green <em>Code &rarr; Download ZIP</em> button on GitHub if you don't use git):</p>
               <div class="cmd">
-                <pre>git clone https://github.com/Fauxvale/skyrimnet-save-explorer.git</pre>
+                <div class="code">
+                  <pre>git clone https://github.com/Fauxvale/skyrimnet-save-explorer.git</pre>
+                  <button class="copy-btn" type="button" aria-label="Copy command to clipboard">Copy</button>
+                </div>
               </div>
             </div>
           </div>
@@ -642,11 +672,17 @@
               <p>Copy the <code class="inline">skills/skyrimnet-save-explorer</code> folder from the repo into your personal skills directory:</p>
               <div class="cmd">
                 <p class="os">macOS / Linux</p>
-                <pre>cp -r skyrimnet-save-explorer/skills/skyrimnet-save-explorer ~/.claude/skills/</pre>
+                <div class="code">
+                  <pre>cp -r skyrimnet-save-explorer/skills/skyrimnet-save-explorer ~/.claude/skills/</pre>
+                  <button class="copy-btn" type="button" aria-label="Copy command to clipboard">Copy</button>
+                </div>
               </div>
               <div class="cmd">
                 <p class="os">Windows &middot; PowerShell</p>
-                <pre>Copy-Item -Recurse skyrimnet-save-explorer\skills\skyrimnet-save-explorer $env:USERPROFILE\.claude\skills\</pre>
+                <div class="code">
+                  <pre>Copy-Item -Recurse skyrimnet-save-explorer\skills\skyrimnet-save-explorer $env:USERPROFILE\.claude\skills\</pre>
+                  <button class="copy-btn" type="button" aria-label="Copy command to clipboard">Copy</button>
+                </div>
               </div>
               <p class="path-note">You should end up with <code>~/.claude/skills/skyrimnet-save-explorer/SKILL.md</code>.</p>
             </div>
@@ -694,5 +730,40 @@
         </span>
       </footer>
     </div>
+    <script>
+      document.querySelectorAll('.copy-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var pre = btn.parentElement.querySelector('pre');
+          var text = pre ? pre.textContent : '';
+
+          function confirmCopied() {
+            btn.textContent = 'Copied';
+            btn.classList.add('copied');
+            setTimeout(function () {
+              btn.textContent = 'Copy';
+              btn.classList.remove('copied');
+            }, 1600);
+          }
+
+          function fallbackCopy() {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.setAttribute('readonly', '');
+            ta.style.position = 'absolute';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); confirmCopied(); } catch (e) { /* no-op */ }
+            document.body.removeChild(ta);
+          }
+
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(confirmCopied).catch(fallbackCopy);
+          } else {
+            fallbackCopy();
+          }
+        });
+      });
+    </script>
   </body>
 </html>
