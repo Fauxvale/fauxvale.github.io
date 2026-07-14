@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="SkyrimNet Save Explorer — a Claude Code skill that turns a Skyrim AI-mod playthrough into an interactive, offline HTML save journal.">
+    <title>SkyrimNet Save Explorer</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        --bg: #0a0e14;
+        --bg-glow-1: radial-gradient(ellipse 900px 500px at 15% -10%, rgb(94 129 244 / 22%), transparent 60%);
+        --bg-glow-2: radial-gradient(ellipse 900px 600px at 100% 10%, rgb(159 94 244 / 16%), transparent 60%);
+        --surface: rgb(255 255 255 / 4%);
+        --surface-border: rgb(255 255 255 / 9%);
+        --surface-hover: rgb(255 255 255 / 7%);
+        --text: #e7ebf3;
+        --text-dim: #97a1b5;
+        --text-dimmer: #656e82;
+        --accent: #7c9bff;
+        --accent-strong: #a5b8ff;
+        --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          var(--bg-glow-1),
+          var(--bg-glow-2),
+          var(--bg);
+      }
+
+      a { color: var(--accent); text-decoration: none; }
+      a:hover, a:focus-visible { color: var(--accent-strong); text-decoration: underline; }
+
+      .wrap {
+        width: min(100%, 62rem);
+        margin: 0 auto;
+        padding: clamp(1.5rem, 5vw, 3rem) clamp(1.25rem, 5vw, 2rem) 5rem;
+      }
+
+      header.top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding-bottom: clamp(2.5rem, 8vw, 5rem);
+        font-size: .9rem;
+      }
+
+      header.top a.home {
+        color: var(--text-dim);
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+      }
+      header.top a.home:hover { color: var(--text); text-decoration: none; }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        font-family: var(--mono);
+        font-size: .78rem;
+        letter-spacing: .02em;
+        color: var(--text-dim);
+        background: var(--surface);
+        border: 1px solid var(--surface-border);
+        border-radius: 999px;
+        padding: .35rem .8rem;
+      }
+      .badge .dot {
+        width: .45rem;
+        height: .45rem;
+        border-radius: 50%;
+        background: #6de89a;
+        box-shadow: 0 0 8px #6de89a;
+      }
+
+      /* Hero */
+      .hero { text-align: left; }
+      .hero .eyebrow {
+        font-family: var(--mono);
+        font-size: .8rem;
+        color: var(--accent-strong);
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        margin: 0 0 1rem;
+      }
+      h1 {
+        font-size: clamp(2.25rem, 6vw, 3.5rem);
+        line-height: 1.08;
+        letter-spacing: -.02em;
+        margin: 0 0 1rem;
+        background: linear-gradient(135deg, #ffffff 20%, #b9c6ff 75%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .tagline {
+        font-size: clamp(1.05rem, 2.4vw, 1.25rem);
+        color: var(--text-dim);
+        max-width: 42rem;
+        line-height: 1.6;
+        margin: 0 0 2rem;
+      }
+      .tagline strong { color: var(--text); font-weight: 600; }
+
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .75rem;
+        margin-bottom: .5rem;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        font-size: .95rem;
+        font-weight: 600;
+        padding: .75rem 1.25rem;
+        border-radius: .6rem;
+        border: 1px solid transparent;
+        transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+      }
+      .btn:hover { transform: translateY(-1px); text-decoration: none; }
+      .btn.primary {
+        background: linear-gradient(135deg, #6d8bff, #9f6ff4);
+        color: #060814;
+      }
+      .btn.primary:hover { color: #060814; filter: brightness(1.08); }
+      .btn.ghost {
+        background: var(--surface);
+        border-color: var(--surface-border);
+        color: var(--text);
+      }
+      .btn.ghost:hover { background: var(--surface-hover); color: var(--text); }
+
+      /* Sections */
+      section { margin-top: clamp(3.5rem, 9vw, 6rem); }
+      .section-head { margin-bottom: 1.75rem; }
+      .section-head .kicker {
+        font-family: var(--mono);
+        font-size: .78rem;
+        color: var(--text-dimmer);
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        margin: 0 0 .5rem;
+      }
+      .section-head h2 {
+        font-size: clamp(1.4rem, 3.5vw, 1.9rem);
+        margin: 0;
+        letter-spacing: -.01em;
+      }
+      .section-head p {
+        color: var(--text-dim);
+        font-size: 1rem;
+        line-height: 1.65;
+        max-width: 42rem;
+        margin: .75rem 0 0;
+      }
+
+      /* Card grid */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+      }
+      @media (max-width: 800px) {
+        .grid { grid-template-columns: 1fr; }
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--surface-border);
+        border-radius: .9rem;
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+      }
+      .card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(160deg, rgb(124 155 255 / 8%), transparent 45%);
+        pointer-events: none;
+      }
+      .card .step {
+        font-family: var(--mono);
+        font-size: .78rem;
+        color: var(--accent-strong);
+        margin: 0 0 .75rem;
+      }
+      .card h3 {
+        font-size: 1.05rem;
+        margin: 0 0 .6rem;
+        letter-spacing: -.01em;
+      }
+      .card p {
+        font-size: .92rem;
+        line-height: 1.6;
+        color: var(--text-dim);
+        margin: 0;
+      }
+
+      /* Tabs illustration row */
+      .tabs-preview {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+      @media (max-width: 700px) {
+        .tabs-preview { grid-template-columns: 1fr; }
+      }
+      .tab-card {
+        background: var(--surface);
+        border: 1px solid var(--surface-border);
+        border-radius: .9rem;
+        padding: 1.5rem;
+      }
+      .tab-card .tab-label {
+        font-family: var(--mono);
+        font-size: .75rem;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+        color: var(--text-dimmer);
+        margin: 0 0 .75rem;
+      }
+      .tab-card h3 { margin: 0 0 .75rem; font-size: 1.1rem; }
+      .tab-card ul {
+        margin: 0;
+        padding-left: 1.1rem;
+        color: var(--text-dim);
+        font-size: .92rem;
+        line-height: 1.9;
+      }
+
+      /* Example callout */
+      .example {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1.25rem;
+        background: linear-gradient(135deg, rgb(124 155 255 / 10%), rgb(159 94 244 / 8%));
+        border: 1px solid var(--surface-border);
+        border-radius: 1rem;
+        padding: clamp(1.5rem, 4vw, 2.25rem);
+      }
+      .example .copy h3 {
+        margin: 0 0 .5rem;
+        font-size: 1.2rem;
+      }
+      .example .copy p {
+        margin: 0;
+        color: var(--text-dim);
+        font-size: .95rem;
+        max-width: 34rem;
+        line-height: 1.6;
+      }
+
+      footer {
+        margin-top: clamp(4rem, 10vw, 6rem);
+        padding-top: 2rem;
+        border-top: 1px solid var(--surface-border);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--text-dimmer);
+        font-size: .85rem;
+      }
+      footer a { color: var(--text-dim); }
+      footer a:hover { color: var(--accent-strong); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <a class="home" href="index.html">&larr; fauxvale.github.io</a>
+        <span class="badge"><span class="dot"></span>Claude Code skill</span>
+      </header>
+
+      <section class="hero">
+        <p class="eyebrow">SkyrimNet &middot; IntelEngine</p>
+        <h1>SkyrimNet Save Explorer</h1>
+        <p class="tagline">
+          A <strong>Claude Code skill</strong> that turns a Skyrim playthrough running the
+          <strong>SkyrimNet</strong> and <strong>IntelEngine</strong> AI mods into a single,
+          self-contained HTML page &mdash; an interactive "save explorer" journal for one
+          character's entire run, generated straight from your own save data.
+        </p>
+        <div class="cta-row">
+          <a class="btn primary" href="https://github.com/Fauxvale/skyrimnet-save-explorer">View on GitHub</a>
+          <a class="btn ghost" href="The-Adventures-of-Jules.html">See a live example &rarr;</a>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <p class="kicker">How it works</p>
+          <h2>From save file to field journal</h2>
+          <p>
+            The process is collaborative: Claude inspects your data, asks a few questions along
+            the way, and builds the page entirely from what it finds &mdash; nothing is templated
+            or made up.
+          </p>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <p class="step">01</p>
+            <h3>Upload your save data</h3>
+            <p>
+              Hand over your SkyrimNet and IntelEngine databases and logs. Claude reads them
+              read-only and reports back what it finds &mdash; your character, the timespan,
+              what's populated.
+            </p>
+          </div>
+          <div class="card">
+            <p class="step">02</p>
+            <h3>Claude asks, you decide</h3>
+            <p>
+              Theme, optional sections, whether to embed screenshots &mdash; the small decisions
+              stay yours. Every stat and label in the final page comes from your data, never a
+              sample.
+            </p>
+          </div>
+          <div class="card">
+            <p class="step">03</p>
+            <h3>Get one HTML file</h3>
+            <p>
+              A single offline page, no build step, no dependencies. Double-click it and it just
+              opens &mdash; a shareable journal of the whole playthrough.
+            </p>
+          </div>
+        </div>
+
+        <div class="tabs-preview">
+          <div class="tab-card">
+            <p class="tab-label">Tab 01</p>
+            <h3>SkyrimNet &mdash; the lived experience</h3>
+            <ul>
+              <li>Event timeline of the run</li>
+              <li>An interactive memory "constellation"</li>
+              <li>Kill ledger &amp; diary</li>
+              <li>OmniSight field notes</li>
+            </ul>
+          </div>
+          <div class="tab-card">
+            <p class="tab-label">Tab 02</p>
+            <h3>IntelEngine &mdash; the political layer</h3>
+            <ul>
+              <li>Faction relations</li>
+              <li>Provocation chronicle</li>
+              <li>Off-screen gossip</li>
+              <li>Any ongoing war, if the save has one</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="example">
+          <div class="copy">
+            <h3>See a real one</h3>
+            <p>
+              "The Adventures of Jules" is a save explorer generated from an actual playthrough
+              &mdash; every section, stat, and memory on that page came from real save data.
+            </p>
+          </div>
+          <a class="btn primary" href="The-Adventures-of-Jules.html">Open the example &rarr;</a>
+        </div>
+      </section>
+
+      <footer>
+        <span>SkyrimNet Save Explorer</span>
+        <span>
+          <a href="https://github.com/Fauxvale/skyrimnet-save-explorer">GitHub repo</a>
+          &middot;
+          <a href="index.html">Back home</a>
+        </span>
+      </footer>
+    </div>
+  </body>
+</html>
