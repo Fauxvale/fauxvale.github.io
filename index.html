@@ -97,14 +97,15 @@
     color: var(--ink-soft);
     margin: 34px 0 16px;
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .section-title::before,
   .section-title::after {
     content: "";
-    display: inline-block;
-    width: 40px;
+    flex: 0 1 40px;
     height: 2px;
-    vertical-align: middle;
     margin: 0 10px;
     background: var(--pink-soft);
   }
@@ -212,7 +213,7 @@
     <h2 class="section-title">Subpages</h2>
     <div class="subpages">
       <a class="subpage-link" href="https://fauxvale.github.io/skyrimnet-save-explorer.html" target="_blank" rel="noopener noreferrer">
-        Fauxvale's SkyrimNet Save Observer <span class="arrow">→</span>
+        Fauxvale's SkyrimNet Save Explorer <span class="arrow">→</span>
       </a>
     </div>
 
