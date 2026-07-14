@@ -354,9 +354,11 @@ Condensed font. It is the "Skyrim's UI Elements" pack on Nexus Mods:
 **https://www.nexusmods.com/skyrimspecialedition/mods/82169?tab=files**. **You (the builder) do not download
 it** — Nexus gates files behind a logged-in account and a manual download flow, so **I will download the pack
 from that page and upload it to you.** If I pick this theme and haven't supplied the pack yet, **ask me to
-download it from that URL and upload it, then wait** — do not proceed to build the Knotwork theme until I
-have. There is **no CSS/SVG fallback for this theme**: if I don't supply the pack, don't build the Knotwork
-theme at all — offer me one of the other themes instead.
+download the pack from that URL and upload the whole `.zip` archive as-is, then wait** — do not proceed to
+build the Knotwork theme until I have. **Ask for the entire archive in one request; do not enumerate specific
+files or images for me to find and upload individually** — request the whole zip at once and pull whatever you
+need out of it yourself once I've uploaded it. There is **no CSS/SVG fallback for this theme**: if I don't
+supply the pack, don't build the Knotwork theme at all — offer me one of the other themes instead.
 
 - **Fonts:**
   - *Display / labels / tabs:* **Futura Condensed** (Skyrim's menu face) from the required asset pack,
@@ -394,11 +396,13 @@ theme at all — offer me one of the other themes instead.
 **About the Skyrim UI asset archive:** it's the **"Skyrim's UI Elements"** pack on Nexus Mods —
 **https://www.nexusmods.com/skyrimspecialedition/mods/82169?tab=files** — containing, among other things, a
 "Message Card" panel PNG (black field with a brushed-bronze knotwork border), a TES V **Dragon** emblem PNG,
-and **Futura Condensed** `.ttf` files. This theme **requires** it, and **I supply it**: ask me to download the pack from that page
-and upload it (you don't download it — Nexus is login-gated), then use those real assets directly (per
-Phase 1, Step 4 — reference them by relative path from an `assets/` folder shipped with the page, **not** as
-base64). There is no CSS-only fallback for this theme — without the pack, build one of the other themes
-instead.
+and **Futura Condensed** `.ttf` files. This theme **requires** it, and **I supply it**: ask me to download the
+pack from that page and upload the **whole `.zip` archive in a single request** (you don't download it — Nexus
+is login-gated). **Don't ask me for particular images or files by name** — the archive above is the description
+of what's inside so *you* know what to expect, not a shopping list for me; request the entire zip at once and
+extract what you need from it yourself. Then use those real assets directly (per Phase 1, Step 4 — reference
+them by relative path from an `assets/` folder shipped with the page, **not** as base64). There is no CSS-only
+fallback for this theme — without the pack, build one of the other themes instead.
 
 *(Everything below is the structural baseline for whichever theme I pick.)*
 
