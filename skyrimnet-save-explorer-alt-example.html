@@ -52,10 +52,10 @@ a{color:var(--gold)}
 .tab:focus-visible{box-shadow:inset 0 0 0 1px var(--gold-lit)}
 
 /* ---- Header ---- */
-header.masthead{position:relative;text-align:center;padding:64px 20px 34px;overflow:hidden}
-.dragon-wm{position:absolute;left:50%;top:50%;transform:translate(-50%,-46%);width:min(620px,90vw);
+header.masthead{position:relative;text-align:center;padding:50px 20px 34px;overflow:hidden}
+.dragon-wm{position:absolute;left:50%;top:42%;transform:translate(-50%,-46%);width:min(620px,90vw);
   opacity:.06;pointer-events:none;filter:sepia(1) saturate(.6) brightness(1.1);z-index:0}
-.masthead>*{position:relative;z-index:1}
+.masthead>*:not(.dragon-wm){position:relative;z-index:1}
 .eyebrow{font-family:'Futura Condensed',sans-serif;text-transform:uppercase;letter-spacing:.42em;
   font-size:12px;color:var(--gold);margin-bottom:20px}
 .kicker{font-style:italic;font-size:20px;color:var(--dim);margin-bottom:2px;letter-spacing:.01em}
@@ -246,15 +246,6 @@ circle.star:active{cursor:grabbing}
 .shot-hidden{display:none}
 .showmore{margin-top:16px}
 
-/* ---- Summons & Roads ---- */
-.summ-row{display:grid;grid-template-columns:170px 1fr;gap:18px;padding:16px 0;border-bottom:1px solid var(--hair2)}
-@media(max-width:720px){.summ-row{grid-template-columns:1fr;gap:6px}}
-.summ-kind{font-family:'Futura Condensed',sans-serif;text-transform:uppercase;letter-spacing:.1em;font-size:13px;color:var(--gold)}
-.summ-npc{font-family:'Futura Condensed',sans-serif;text-transform:uppercase;letter-spacing:.06em;font-size:15px;color:var(--parch-bright);margin-top:3px}
-.summ-scene{font-style:italic;color:var(--dim);font-size:15px;margin-bottom:8px}
-.summ-msg{border-left:2px solid var(--bronze);padding-left:14px;color:var(--parchment);font-size:16px}
-.summ-dest{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);margin-top:8px}
-
 /* ---- IntelEngine: relations ---- */
 .rel-cap{color:var(--dim);font-style:italic;font-size:15px;margin-bottom:18px;max-width:72ch}
 .rel-row{display:grid;grid-template-columns:1fr 44% 1fr 58px;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--hair2)}
@@ -328,6 +319,17 @@ circle.star:active{cursor:grabbing}
   position:relative;margin-top:auto;line-height:1.5}
 .whisp-quote::before{content:'\201C';font-family:Georgia,serif;font-size:40px;color:var(--bronze);
   position:absolute;left:8px;top:-14px;opacity:.5}
+
+/* ---- Summons (whisper-style cards) ---- */
+.summ-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:18px}
+.summ-card{background:rgba(18,18,22,.6);border:1px solid var(--hair);border-radius:3px;padding:16px 18px;
+  border-top:3px solid var(--dim);display:flex;flex-direction:column}
+.summ-card.quest{border-top-color:var(--gold)}
+.summ-card.summons{border-top-color:var(--cat-thoughts)}
+.summ-card.road{border-top-color:var(--cat-trade)}
+.wtag.quest{background:rgba(216,180,106,.16);color:var(--gold-lit)}
+.wtag.summons{background:rgba(126,163,179,.16);color:var(--cat-thoughts)}
+.wtag.road{background:rgba(123,148,96,.16);color:var(--cat-trade)}
 
 /* ---- Footer ---- */
 footer{text-align:center;font-style:italic;color:var(--faint);font-size:13px;padding:40px 20px 60px;
@@ -745,14 +747,36 @@ function memRows(ms){
   const q=SU.quests||[],m=SU.messages||[],r=SU.roads||[];
   if(q.length+m.length+r.length===0)return;
   const body=makeSection(SNPANE,'Summons','VII','Summons & Roads',`The story director's hand — quests offered, messengers sent, travellers on the move. Reconstructed from saved model outputs.`);
-  const row=(kind,npc,scene,msg,dest)=>`<div class="summ-row">
-      <div><div class="summ-kind disp">${kind}</div><div class="summ-npc disp">${esc(npc||'—')}</div></div>
-      <div>${scene?`<div class="summ-scene">${esc(cap1(scene))}</div>`:''}${msg?`<div class="summ-msg">${esc(msg)}</div>`:''}${dest?`<div class="summ-dest mono">→ ${esc(dest)}</div>`:''}</div></div>`;
-  let html='';
-  q.forEach(x=>html+=row('Quest offered',x.npc,x.scene,x.msg,[x.dest,x.meet].filter(Boolean).join(' · ')));
-  m.forEach(x=>html+=row('Summons',x.npc,x.scene,x.msg,[x.dest,x.meet].filter(Boolean).join(' · ')));
-  r.forEach(x=>html+=row('On the road',x.npc,x.scene,'',x.dest));
-  body.innerHTML=html;
+  const cards=[];
+  const route=(dest,meet)=>[dest,meet].filter(Boolean).join(' · ');
+  const pushCard=(kind,label,npc,scene,quote,extra)=>{
+    const target=extra&&extra!=='—' ? extra : '';
+    cards.push({
+      kind,
+      html:`<div class="summ-card ${kind}">
+        <div class="whisp-tags"><span class="wtag ${kind} disp">${esc(label)}</span></div>
+        <div class="whisp-people disp">${esc(npc||'—')}${target?` → <span class="lst">${esc(target)}</span>`:''}</div>
+        ${scene?`<div class="whisp-scene">${esc(cap1(scene))}</div>`:''}
+        ${quote?`<div class="whisp-quote">${esc(quote)}</div>`:''}
+      </div>`
+    });
+  };
+  q.forEach(x=>pushCard('quest','Quest offered',x.npc,x.scene,x.msg,route(x.dest,x.meet)));
+  m.forEach(x=>pushCard('summons','Summons',x.npc,x.scene,x.msg,route(x.dest,x.meet)));
+  r.forEach(x=>pushCard('road','On the road',x.npc,x.scene,`Heading for ${x.dest||'somewhere else'}`,x.dest||'—'));
+  const filters=[['all','All',cards.length],['quest','Quests',q.length],['summons','Summons',m.length],['road','Roads',r.length]];
+  const chipHTML='<div class="chiprow" id="summchips">'+filters.map((f,i)=>`<button class="chip ${i===0?'on':''}" data-sf="${f[0]}">${esc(f[1])} <span class="ct mono">${f[2]}</span></button>`).join('')+'</div>';
+  body.innerHTML=chipHTML+`<div class="summ-grid" id="summgrid"></div>`;
+  function render(filter){
+    const grid=document.getElementById('summgrid');
+    grid.innerHTML=cards.filter(c=>filter==='all'||c.kind===filter).map(c=>c.html).join('')||'<p class="memnote">No entries in this bucket.</p>';
+  }
+  render('all');
+  body.querySelectorAll('#summchips .chip').forEach(ch=>ch.addEventListener('click',()=>{
+    body.querySelectorAll('#summchips .chip').forEach(x=>x.classList.remove('on'));
+    ch.classList.add('on');
+    render(ch.dataset.sf);
+  }));
 })();
 function cap1(s){s=String(s||'').trim();return s.charAt(0).toUpperCase()+s.slice(1);}
 
