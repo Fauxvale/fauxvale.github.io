@@ -239,6 +239,8 @@ circle.star:active{cursor:grabbing}
 .shot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-top:20px}
 .shot-card{background:rgba(20,20,24,.55);border:1px solid var(--hair);border-radius:3px;padding:14px 16px;
   border-top:2px solid var(--bronze)}
+.shot-media{margin:0 0 10px;border:1px solid var(--hair2);border-radius:2px;overflow:hidden;background:#111}
+.shot-media img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
 .shot-name{font-family:'Futura Condensed',sans-serif;text-transform:uppercase;letter-spacing:.08em;
   color:var(--parch-bright);font-size:15px}
 .shot-meta{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);margin:3px 0 8px}
@@ -732,7 +734,40 @@ function memRows(ms){
   let portrait=`<div class="framed"><div class="portrait-body"><div style="text-align:center;font-family:'Futura Condensed',sans-serif;text-transform:uppercase;letter-spacing:.16em;color:var(--gold);font-size:16px;margin-bottom:16px">${esc(P.title)}</div>${P.paragraphs.map(p=>`<p>${esc(p)}</p>`).join('')}<div class="portrait-foot mono">${esc(P.foot)}</div></div></div>`;
   const shots=SN.screenshots;
   const SHOWN=9;
+  const shotImageMap={
+    "Bleak Falls Temple":"omnisight-images/location_BleakFallsBarrow01.png",
+    "Bleak Falls Sanctum":"omnisight-images/location_BleakFallsBarrow02.png",
+    "Clockwork Castle Hall":"omnisight-images/location_CLWCastleMainHall.png",
+    "Riverwood Trader":"omnisight-images/location_RiverwoodRiverwoodTrader.png",
+    "Belethor's General Goods":"omnisight-images/location_WhiterunBelethorsGeneralGoods.png",
+    "High Hrothgar":"omnisight-images/location_HighHrothgar.png",
+    "Pinepeak Cavern":"omnisight-images/location_PinepeakCavern01.png",
+    "Vilemyr Inn":"omnisight-images/location_IvarsteadVilemyrInn.png",
+    "Sleeping Giant Inn":"omnisight-images/location_RiverwoodSleepingGiantInn.png",
+    "Embershard Mine":"omnisight-images/location_EmbershardMine01.png",
+    "The Bannered Mare":"omnisight-images/location_WhiterunBanneredMare.png",
+    "Dragonsreach":"omnisight-images/location_WhiterunDragonsreach.png",
+    "Arcadia's Cauldron":"omnisight-images/location_WhiterunArcadiasCauldron.png",
+    "Warmaiden's":"omnisight-images/location_WhiterunWarmaidens.png",
+    "Fletcher":"omnisight-images/location_SolitudeFletcher.png",
+    "Castle Dour":"omnisight-images/location_SolitudeCastleDour.png",
+    "Castle Dour Dungeon":"omnisight-images/location_SolitudeJail01.png",
+    "Dead Men's Respite":"omnisight-images/location_DeadMensRespite01.png",
+    "Bards College":"omnisight-images/location_SolitudeBardsCollege.png",
+    "Blue Palace":"omnisight-images/location_SolitudeBluePalaceCourtyard.png",
+    "The Winking Skeever":"omnisight-images/location_SolitudeWinkingSkeever.png",
+    "Ustengrav":"omnisight-images/location_Ustengrav01.png",
+    "Ustengrav Depths":"omnisight-images/location_Ustengrav02.png"
+  };
+  const shotImageSrc=s=>{
+    const key=s.name||s.loc||'';
+    const direct=shotImageMap[key]||shotImageMap[s.loc]||shotImageMap[s.name];
+    if(direct)return direct;
+    const slug=String(s.loc||s.name||'').replace(/[^A-Za-z0-9]+/g,'');
+    return `omnisight-images/location_${slug}.png`;
+  };
   let cards=shots.map((s,i)=>`<div class="shot-card ${i>=SHOWN?'shot-hidden':''}" data-idx="${i}">
+      <div class="shot-media"><img src="${esc(shotImageSrc(s))}" alt="${esc(s.name)}" loading="lazy" decoding="async"></div>
       <div class="shot-name disp">${esc(s.name)}</div>
       <div class="shot-meta mono">${esc(s.loc||'')}${s.ts?' · '+esc(s.ts):''}</div>
       <div class="shot-desc">${esc(s.desc)}</div></div>`).join('');
