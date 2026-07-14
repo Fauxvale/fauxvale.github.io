@@ -7,8 +7,8 @@ The finished page has **two tabs**:
 
 - **SkyrimNet** — my character's lived experience: an event timeline, an interactive "constellation"
   of their memories, the memories themselves, a kill ledger, a diary page, OmniSight field notes (with a
-  distilled "portrait of the land"), and — **when my logs contain them** — the story director's summonses
-  and road encounters.
+  distilled "portrait of the land" and matched local capture images), and — **when my logs contain them** —
+  the refactored story director summonses and road encounters section.
 - **IntelEngine** — the political layer: faction relationships, a chronicle of provocations between
   factions, off-screen gossip, and — **only if my save actually has one** — an ongoing war and its battles.
 
@@ -63,7 +63,8 @@ is the source for most of the **SkyrimNet tab**:
   actor flagged as the player, e.g. bio template `player_special`).
 - **`omnisight_screenshots`** — captured location/scene notes: `subject_name`, `description` (rich prose),
   `location_name` / `location_cell`, and a `capture_time_game` date. (The actual screenshot pixels are
-  **not** in the DB logs; use the text + metadata.)
+  **not** in the DB logs; use the text + metadata, plus any matching files in `omnisight-images/` when
+  embedding the OmniSight cards.)
 - **`diary_entries`** — long-form first-person journal `content` with an `emotion` and `entry_date`.
 
 Tell me the character's name and the in-game date span you detected, then proceed.
@@ -100,6 +101,8 @@ whichever you actually need rather than demanding all of them:
 
 - **`openrouter_output.log`** (~1 MB — *recommended*) — the model's structured outputs. This is the only
   source for the **gossip** and **Summons & Roads** sections, and a good source for diary/OmniSight text.
+  Use it for the refactored summons cards, but keep OmniSight images sourced from the local
+  `omnisight-images/` files.
 - **`conversation_log.log`** (~78 KB) — the raw player↔NPC / NPC↔NPC dialogue transcript (corroboration only).
 - **`openrouter_input.log`** and its dated siblings (~4–13 MB each) — mostly the *prompts* sent to the
   model; large and largely redundant with the DBs. Usually **skip these**; they may be too big to upload.
@@ -130,35 +133,38 @@ Two families of objects matter:
    `type:"npc_interaction"` with `fact1`/`fact2` instead — you may include those as memories exchanged.)
 
 2. **Story-director beats** — objects with `type:"quest"`, `type:"message"`, or `type:"road_encounter"`,
-   each with an `npc`, a `narration` scene, and (for quest/message) a `msgContent` body and a
-   `destination`/`questLocation`/`meetTime`. These drive the **Summons & Roads** section.
+  each with an `npc`, a `narration` scene, and (for quest/message) a `msgContent` body and a
+  `destination`/`questLocation`/`meetTime`. These drive the refactored **Summons & Roads** section, which
+  should be rendered as a responsive card grid with summary counts and filter chips for Quests, Summons,
+  and Roads.
 
 **If I don't provide logs, don't invent gossip or summonses** — hide or annotate those sections and tell me
 they were skipped for lack of a log file.
 
-### Step 4 — external assets (optional for most themes; required for Skyrim Knotwork)
+### Step 4 — external assets (optional)
 
 Beyond the databases and logs, I may hand you **external assets** to use in the build — fonts (`.ttf`/`.otf`/
-`.woff2`), images or textures (borders, panels, emblems, icons, backgrounds), or a whole archive like the
-Skyrim UI pack. **When I supply an asset, you may use it directly** rather than recreating or approximating
-it: inspect what I gave you and tell me what you found (dimensions, format, what it looks suited for). There
-are **two ways to wire an asset in**, and the theme decides which:
+`.woff2`), images or textures (borders, panels, icons, backgrounds), or a batch of OmniSight capture
+images. **When I supply an asset, you may use it directly** rather than recreating or approximating it:
+inspect what I gave you and tell me what you found (dimensions, format, what it looks suited for). There are
+**two ways to wire an asset in**:
 
 - **Embed (default, for a single self-contained file):** inline the asset as a **base64 data URI** — fonts
   via `@font-face`, images via `url(data:...)` / `border-image` / `<img src="data:...">` — so the whole
   build is one file that opens offline.
-- **Reference directly (Skyrim Knotwork theme):** keep the asset as a real file and point the page at it by
-  **relative path** (e.g. `@font-face { src: url("assets/futura-condensed.ttf"); }`,
-  `border-image: url("assets/message-card.png")`). Deliver those asset files **alongside** the `.html` in an
-  `assets/` folder so the page still opens offline from the local folder, just not as a lone file.
+- **Reference directly:** keep the asset as a real file and point the page at it by **relative path**.
+  Deliver those asset files **alongside** the `.html` in an `assets/` folder when that is the intended
+  packaging, so the page still opens offline from the local folder, just not as a lone file.
 
 Keep a CSS/SVG fallback ready for anything I *don't* supply, and tell me plainly which assets you used
-(and how you wired them) and which you fell back on.
+(and how you wired them) and which you fell back on. If I want OmniSight image embeds, ask me whether I want
+to upload my OmniSight screenshots; if I say yes, I’ll provide the images and you should place them in
+`omnisight-images/` and embed them in the OmniSight cards.
 
 Use only assets I actually provide through the chat — never fetch, download, or invent them. For **my own
-theme**, assets are optional: ask only when they fit what I described, and don't demand them. **The Skyrim
-Knotwork theme is the exception: it *requires* the Skyrim UI asset file, which I must download and upload to
-you** — see that theme for where I get it and how to reference it.
+theme**, assets are optional: ask only when they fit what I described, and don't demand them. For OmniSight
+image embeds, ask first whether I want to upload the screenshots, then place the provided image files in
+`omnisight-images/` and wire them into the cards.
 
 ---
 
@@ -203,7 +209,8 @@ Build the JSON payloads to embed in the page. Derive everything from my files.
 - **`diary`** — the diary as `{ actor, loc, content, emotion }` (an array if there are several entries).
   Keep `content`'s paragraph breaks and any `*emphasis*` markers intact.
 - **`screenshots`** — OmniSight captures as `{ name, loc, ts, desc }` from `omnisight_screenshots`
-  (`ts` = the capture date/time string; `loc` = readable location/cell).
+  (`ts` = the capture date/time string; `loc` = readable location/cell). Match each capture to the
+  corresponding local image in `omnisight-images/` and embed that image in the card.
 - **`omni_summary`** — **a synthesized "portrait of the land."** Read **all** of the OmniSight descriptions
   and distil them into one cohesive prose description of the whole landscape the run passed through: a
   `{ title, paragraphs:[…2-3 paragraphs…], foot }` object. Ground it strictly in what the captures actually
@@ -277,12 +284,9 @@ messages), and a destination/meet-time where present. Empty if no log was provid
 ## Phase 3 — Build the page
 
 Produce **one self-contained `.html` file**. No build step, no frameworks, no external JavaScript or CSS
-libraries. The only external references allowed are a Google Fonts `<link>`, any fonts/images you embed as
-base64 data URIs, and — **in the Skyrim Knotwork theme only** — the Skyrim UI asset files I supplied,
-referenced by relative path from an `assets/` folder delivered alongside the HTML (see Phase 1, Step 4). All
-of these keep the page fully offline. Embed the payloads as `<script type="application/json">` blocks and
-render everything with **vanilla JS**. It must open by double-clicking the file offline (with its `assets/`
-folder beside it, when the Knotwork theme references external assets). Honor
+libraries. The only external references allowed are a Google Fonts `<link>` and any fonts/images you embed as
+base64 data URIs. Embed the payloads as `<script type="application/json">` blocks and render everything with
+**vanilla JS**. It must open by double-clicking the file offline. Honor
 `prefers-reduced-motion` throughout, keep visible keyboard focus, and be responsive down to mobile.
 
 ### Structure (applies to every theme)
@@ -317,14 +321,11 @@ folder beside it, when the Knotwork theme references external assets). Honor
 
 ### Look & feel — ask me which theme
 
-**Before you settle on any colors, fonts, or overall styling, ask me to pick one of three:**
+**Before you settle on any colors, fonts, or overall styling, ask me to pick one of two:**
 
 1. **Preset theme — Illuminated Manuscript** (details below). If I pick this, apply it exactly; no need to
    ask anything further about design.
-2. **Skyrim Knotwork theme** (details below) — styled after Skyrim's in-game menu UI. If I pick this, apply
-   it exactly as specified. **This theme requires the Skyrim UI asset pack, which I download and upload to
-   you** (see that section) — there is no fallback; if I don't supply it, build one of the other themes.
-3. **My own theme** — I describe a color scheme and/or overall design I'd prefer. If I pick this, **invoke
+2. **My own theme** — I describe a color scheme and/or overall design I'd prefer. If I pick this, **invoke
    your design skill** (if available) and design the site to my specification — palette, typography, and
    styling — while keeping the same structure, sections, and interactions described here. Show me the
    resulting palette/type choices before building the full page. If no design skill is available, apply
@@ -342,68 +343,6 @@ folder beside it, when the Knotwork theme references external assets). Honor
   Followers = dim/grey.
 - **Motifs:** centered header, "double rule" style hairlines, roman-numeral section headers with trailing
   hairlines, the collapsible chevron, and the floating TOC / mobile bar described above.
-
-#### Theme option 2 — Skyrim Knotwork (Skyrim in-game UI)
-
-Styled to look like Skyrim's dark, brushed-metal menu UI — near-black panels framed in bronze knotwork,
-amber-gold selection highlights, a condensed uppercase menu typeface, and the dragon emblem behind the
-header.
-
-**This theme requires the Skyrim UI asset file** — the real Message Card frame, Dragon emblem, and Futura
-Condensed font. It is the "Skyrim's UI Elements" pack on Nexus Mods:
-**https://www.nexusmods.com/skyrimspecialedition/mods/82169?tab=files**. **You (the builder) do not download
-it** — Nexus gates files behind a logged-in account and a manual download flow, so **I will download the pack
-from that page and upload it to you.** If I pick this theme and haven't supplied the pack yet, **ask me to
-download the pack from that URL and upload the whole `.zip` archive as-is, then wait** — do not proceed to
-build the Knotwork theme until I have. **Ask for the entire archive in one request; do not enumerate specific
-files or images for me to find and upload individually** — request the whole zip at once and pull whatever you
-need out of it yourself once I've uploaded it. There is **no CSS/SVG fallback for this theme**: if I don't
-supply the pack, don't build the Knotwork theme at all — offer me one of the other themes instead.
-
-- **Fonts:**
-  - *Display / labels / tabs:* **Futura Condensed** (Skyrim's menu face) from the required asset pack,
-    wired in with an `@font-face` that **references the real `.ttf` by relative path** (`assets/…`, not
-    base64). Uppercase, letter-spaced.
-  - *Body / diary / prose:* `Crimson Pro` (serif), via Google Fonts, with a system-serif fallback so it
-    still reads offline.
-  - *Numbers / metadata:* `JetBrains Mono`.
-- **Palette (CSS `:root`):**
-  `--void:#0e0f12; --void2:#0a0b0d; --field:rgba(8,9,11,.90); --parchment:#cdc7b8; --parch-bright:#e6e0d1;
-  --dim:#8a8578; --faint:#5c584f; --gold:#d8b46a; --gold-lit:#f0d38a; --bronze:#6f6552;
-  --bronze-dim:#4a4438;` plus hairlines like `rgba(205,199,184,.14)`.
-- **Category colours (tuned to Skyrim's HUD bars):** Dialogue `#d8b46a` (gold) · Death `#b0463b`
-  (health red) · Thoughts `#7ea3b3` (magicka steel) · Trade/world `#7b9460` (stamina green) · Followers
-  `#8a8578` (grey).
-- **Faction colours (for the relations bars):** derive from the faction list; a good default mapping is
-  Imperial Legion `#c0655a`, Stormcloaks `#7ea3b3`, Thalmor `#d8b46a`, The Companions `#c8895a`,
-  Thieves Guild `#8ba06b`, College of Winterhold `#8f9ee0`, Dark Brotherhood `#9a4a52`,
-  Silver-Blood Family `#a9adb2`, Black-Briar Family `#a98cc0`; fall back to a stable hashed colour for any
-  faction not listed.
-- **Panels & frame (the signature):** frame the key content panels — the **Constellation**, each **Diary**
-  page, the **War** panel, and the OmniSight **"Portrait of the Land"** — in Skyrim's message-box border.
-  - Use the required pack's **"Message Card"** PNG as a CSS `border-image` (measure the ornate corner cap —
-    typically a slice around `39 41`; apply with `stretch` and a modest `border-width` so the knot corners
-    render small). **Reference the PNG directly by relative path** (e.g. `assets/message-card.png`), not as a
-    base64 data URI, and ship the file in the delivered `assets/` folder. Use the **dragon emblem** PNG the
-    same way — a low-opacity watermark behind the header, referenced by its relative path.
-- **Signature interaction — the "selection glow":** on hover/focus, interactive elements (tabs, filter
-  chips, TOC entries, constellation stars, leaderboard rows) brighten toward `--gold-lit` with a subtle
-  scale-up, echoing Skyrim's menu focus; the active TOC/tab entry gets a marker. Under
-  `prefers-reduced-motion`, drop the motion to a static highlight.
-- Everything structural (collapsible sections, TOC, mobile bar/overlay, "The Adventures of" header) is as
-  in the shared structure above.
-
-**About the Skyrim UI asset archive:** it's the **"Skyrim's UI Elements"** pack on Nexus Mods —
-**https://www.nexusmods.com/skyrimspecialedition/mods/82169?tab=files** — containing, among other things, a
-"Message Card" panel PNG (black field with a brushed-bronze knotwork border), a TES V **Dragon** emblem PNG,
-and **Futura Condensed** `.ttf` files. This theme **requires** it, and **I supply it**: ask me to download the
-pack from that page and upload the **whole `.zip` archive in a single request** (you don't download it — Nexus
-is login-gated). **Don't ask me for particular images or files by name** — the archive above is the description
-of what's inside so *you* know what to expect, not a shopping list for me; request the entire zip at once and
-extract what you need from it yourself. Then use those real assets directly (per Phase 1, Step 4 — reference
-them by relative path from an `assets/` folder shipped with the page, **not** as base64). There is no CSS-only
-fallback for this theme — without the pack, build one of the other themes instead.
-
 *(Everything below is the structural baseline for whichever theme I pick.)*
 
 ### SkyrimNet tab — sections
@@ -431,20 +370,22 @@ fallback for this theme — without the pack, build one of the other themes inst
    (`01`, `02`, …), the killer's name (colored by their actor color), their **total kills**, a horizontal
    **stacked bar segmented by victim category** (People / Undead / Wildlife / Monsters / Dragon, each its
    own color) with a matching legend above, and a row of **victim chips** (`Bandit ×3`, `Draugr ×2`, …).
-5. **The Diary** — render each diary entry as a centered "journal page": a bordered/inset panel (in the
-   Knotwork theme, the message-card frame), a header with the author and place, a **drop-cap** first letter,
+5. **The Diary** — render each diary entry as a centered "journal page": a bordered/inset panel, a header
+   with the author and place, a **drop-cap** first letter,
    paragraphs split on blank lines, and `*starred*` phrases shown as italic emphasis. If several entries
    exist, present them as a book-like stack that can be flipped through. If there is no diary entry, omit the
    section.
 6. **OmniSight Field Notes** — open with a framed **"A Portrait of the Land"** summary panel: the synthesized
    `omni_summary` prose (drop-capped first paragraph, a mono footer line naming the capture count and date
    span), distilled from **all** captures and grounded only in what they describe. Below it, a grid of cards
-   from `screenshots`: subject name, location/metadata line, and the description prose, with a "show
-   more"/"show all" control if there are many. Text only (no images).
-7. **Summons & Roads** *(only if the log yielded story-director objects)* — the `summonsdata`: rows for the
-   quest hooks, the messengers/summonses sent to the player, and NPCs setting out on the roads. Each row:
-   the sender (and a kind label — "Quest offered" / "Summons" / "On the road"), the scene in italics, the
-   message body as a quote, and the destination/meet-time. Omit the section entirely if there's no log.
+   from `screenshots`: each card should include the matched image from `omnisight-images/`, the subject name,
+   the location/metadata line, and the description prose, with a "show more"/"show all" control if there are
+   many.
+7. **Summons & Roads** *(only if the log yielded story-director objects)* — the `summonsdata`: a refactored,
+   filterable card section for the quest hooks, the messengers/summonses sent to the player, and NPCs setting
+   out on the roads. Each card shows the sender (and a kind label — "Quest offered" / "Summons" / "On the
+   road"), the scene in italics, the message body as a quote, and the destination/meet-time. Omit the
+   section entirely if there's no log.
 
 ### IntelEngine tab — sections
 
@@ -466,7 +407,7 @@ fallback for this theme — without the pack, build one of the other themes inst
 > the remaining IntelEngine sections renumber so the tab reads naturally (Relations, then Provocations, then
 > Whispers).
 
-2. **The War** *(only if a war exists)* — a panel (message-card frame in the Knotwork theme) for the active
+2. **The War** *(only if a war exists)* — a panel for the active
    `war`: an intro note (who declared it and when, battles fought so far, victor status), then the two
    belligerents either side of a `Versus`, each with **morale** and **strength** gauges (0–100 bars) and
    their leaders.
@@ -518,10 +459,8 @@ off-screen gossip and summonses are reconstructed from the saved model outputs.
 
 - Confirm the build opens offline; **run it / render it** (a headless browser is ideal) and check every
   section populates (no empty panels, no `undefined`, no `NaN`, no console errors — a blocked Google Fonts
-  request offline is expected and fine). The page is self-contained except that the **Skyrim Knotwork theme**
-  references its required Skyrim UI assets from a delivered `assets/` folder — for that theme, confirm those
-  relative paths resolve and the real font, message-card frame, and dragon emblem actually load from that
-  folder.
+  request offline is expected and fine). If OmniSight image embeds were requested, confirm the supplied image
+  files are present in `omnisight-images/` and render in the cards.
 - Confirm every interaction works: tab switching; UMAP/PCA toggle; actor / type / sort filters and the live
   count; diary flip; OmniSight show-more; whisper filters; **every section collapses and re-expands**; and
   the **Constellation's actor chips stay visible and keep filtering the memory list while that section is
@@ -532,6 +471,6 @@ off-screen gossip and summonses are reconstructed from the saved model outputs.
 - Confirm the character name, day count, "The Adventures of …" title, and every stat came from **my** data —
   not from any example — and that the OmniSight summary is grounded in my actual captures.
 - Tell me plainly what you had to fall back on (e.g. "UMAP not installed, used t-SNE", "no log provided,
-  gossip and Summons & Roads omitted", "no Skyrim UI assets provided, used the CSS-only Knotwork fallback")
+  gossip and Summons & Roads omitted", "no OmniSight images provided, used text-only capture cards")
   rather than papering over gaps.
 - Then give me the finished `.html` file.
