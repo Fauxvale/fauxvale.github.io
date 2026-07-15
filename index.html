@@ -174,6 +174,12 @@
   }
   .subpage-link .arrow { color: var(--mint); }
   .subpage-link .icon { width: auto; height: 26px; flex-shrink: 0; display: block; }
+  .subpage-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .subpage-caption {
+    font-family: "Space Mono", "Courier New", monospace;
+    font-size: 0.68rem;
+    color: var(--ink-soft);
+  }
 
   footer {
     margin-top: 34px;
@@ -216,9 +222,12 @@
       <a class="subpage-link" href="https://www.nexusmods.com/skyrimspecialedition/mods/161779" target="_blank" rel="noopener noreferrer">
         <img class="icon" src="assets/skyrim-logo.svg" alt="Skyrim logo"> Skyrim25 <span class="arrow">→</span>
       </a>
-      <a class="subpage-link" href="https://fauxvale.github.io/skyrimnet-save-explorer.html" target="_blank" rel="noopener noreferrer">
-        SkyrimNet Save Explorer <span class="arrow">→</span>
-      </a>
+      <div class="subpage-item">
+        <a class="subpage-link" href="https://fauxvale.github.io/skyrimnet-save-explorer.html" target="_blank" rel="noopener noreferrer">
+          SkyrimNet Save Explorer <span class="arrow">→</span>
+        </a>
+        <span class="subpage-caption">(^ this one is vibe coded slop)</span>
+      </div>
     </div>
 
     <footer>made with <span class="heart">♥</span> by Fauxvale</footer>
