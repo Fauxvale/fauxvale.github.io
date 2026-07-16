@@ -314,13 +314,17 @@ mark{background:rgba(201,164,92,.28);color:var(--text);border-radius:2px}
 
 /* Main */
 .main{min-width:0;padding:0 0 80px}
-.vhead{border-bottom:1px solid var(--line);padding:34px 40px 22px;position:sticky;top:0;z-index:20;
+/* The bar spans full width so its border and blur reach the edge; the wrapper inside carries
+   the column geometry, so header text and view content share a left edge. Keep .vhw's cap and
+   padding identical to .view's. */
+.vhead{border-bottom:1px solid var(--line);padding:34px 0 22px;position:sticky;top:0;z-index:20;
   background:rgba(20,22,26,.94);backdrop-filter:blur(8px)}
+.vhead .vhw{max-width:1180px;margin-inline:auto;padding:0 40px}
 .vhead .vk{font-family:'JetBrains Mono';font-size:.56rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
 .vhead h2{font-family:'Oswald';text-transform:uppercase;letter-spacing:.12em;font-weight:500;
   font-size:clamp(1.2rem,2.4vw,1.75rem);margin:7px 0 0;color:var(--text)}
 .vhead .vc{color:var(--dim);font-style:italic;font-size:.94rem;margin:9px 0 0;max-width:78ch}
-.view{padding:26px 40px 0;max-width:1180px}
+.view{padding:26px 40px 0;max-width:1180px;margin-inline:auto}
 .toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
 
 /* Overview masthead — the landing view carries the title card, so it doesn't cost
@@ -390,7 +394,8 @@ mark{background:rgba(201,164,92,.28);color:var(--text);border-radius:2px}
     transition:transform .22s;background:var(--bg)}
   .side.open{transform:none}
   .mbar{display:flex}
-  .vhead{padding:22px 18px 16px;position:static}
+  .vhead{padding:22px 0 16px;position:static}
+  .vhead .vhw{padding:0 18px}
   .view{padding:20px 18px 0}
   .scrim{position:fixed;inset:0;background:rgba(10,11,14,.7);z-index:50;display:none}
   .scrim.on{display:block}
@@ -424,9 +429,11 @@ mark{background:rgba(201,164,92,.28);color:var(--text);border-radius:2px}
 
   <main class="main">
     <div class="vhead">
-      <div class="vk" id="vKick"></div>
-      <h2 id="vTitle"></h2>
-      <p class="vc" id="vCap"></p>
+      <div class="vhw">
+        <div class="vk" id="vKick"></div>
+        <h2 id="vTitle"></h2>
+        <p class="vc" id="vCap"></p>
+      </div>
     </div>
     <div class="view" id="view"></div>
   </main>
