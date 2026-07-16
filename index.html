@@ -7,8 +7,25 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<script>
+  // Runs before first paint so the page never flashes the wrong theme.
+  (function () {
+    var storageKey = "fauxvale-color-scheme";
+    var saved = null;
+    try {
+      saved = localStorage.getItem(storageKey);
+    } catch (error) {
+      // Private browsing can throw; fall back to the OS preference.
+    }
+    var theme = saved === "light" || saved === "dark"
+      ? saved
+      : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
 <style>
   :root {
+    color-scheme: light;
     --pink: #ff7bac;
     --pink-soft: #ffd6e7;
     --lilac: #b39ddb;
@@ -21,6 +38,39 @@
     --ink-soft: #7a6a82;
     --card: #fffdf9;
     --page: #fbeef6;
+    --btn-face: #fff;
+    --outline: var(--ink);
+    --subpage-face: var(--mint-soft);
+    --subpage-border: var(--mint);
+    --steam-mark: #171a21;
+    --card-shadow-accent: rgba(255, 123, 172, 0.25);
+    --card-shadow-ambient: rgba(74, 59, 82, 0.15);
+    --logo-filter: none;
+  }
+
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --pink: #f27ba6;
+    --pink-soft: #4a2b3c;
+    --lilac: #a892d6;
+    --lilac-soft: #362f4d;
+    --mint: #6cbfa6;
+    --mint-soft: #24413c;
+    --blue: #5fb0d1;
+    --blue-soft: #22394a;
+    --ink: #f2e7ee;
+    --ink-soft: #a695af;
+    --card: #2e2438;
+    --page: #1d1726;
+    --btn-face: #3a2e46;
+    --outline: #63516f;
+    /* Projects drop the green face at night and keep mint only as the shadow accent. */
+    --subpage-face: #3a2e46;
+    --subpage-border: #63516f;
+    --steam-mark: #c7d5e0;
+    --card-shadow-accent: rgba(242, 123, 166, 0.28);
+    --card-shadow-ambient: rgba(0, 0, 0, 0.45);
+    --logo-filter: brightness(0) invert(0.88);
   }
 
   * { box-sizing: border-box; }
@@ -48,7 +98,7 @@
     background: var(--card);
     border: 3px solid var(--pink);
     border-radius: 28px;
-    box-shadow: 0 10px 0 rgba(255, 123, 172, 0.25), 0 18px 40px rgba(74, 59, 82, 0.15);
+    box-shadow: 0 10px 0 var(--card-shadow-accent), 0 18px 40px var(--card-shadow-ambient);
     padding: 40px 36px;
     text-align: center;
   }
@@ -126,8 +176,8 @@
     font-weight: bold;
     text-decoration: none;
     color: var(--ink);
-    background: #fff;
-    border: 2.5px solid var(--ink);
+    background: var(--btn-face);
+    border: 2.5px solid var(--outline);
     border-radius: 16px;
     padding: 11px 18px;
     box-shadow: 4px 4px 0 var(--btn-shadow, var(--pink));
@@ -142,6 +192,9 @@
     box-shadow: 1px 1px 0 var(--btn-shadow, var(--pink));
   }
   .link-btn .icon { width: 20px; height: 20px; flex-shrink: 0; display: block; }
+
+  /* The Steam mark ships as near-black; a rule outranks the inline fill attribute. */
+  .steam .icon path { fill: var(--steam-mark); }
 
   .yt { --btn-shadow: var(--pink); }
   .steam { --btn-shadow: var(--blue); }
@@ -161,8 +214,8 @@
     text-decoration: none;
     font-weight: bold;
     color: var(--ink);
-    background: var(--mint-soft);
-    border: 2.5px solid var(--mint);
+    background: var(--subpage-face);
+    border: 2.5px solid var(--subpage-border);
     border-radius: 18px;
     padding: 13px 22px;
     box-shadow: 4px 4px 0 var(--mint);
@@ -173,12 +226,65 @@
     box-shadow: 6px 6px 0 var(--mint);
   }
   .subpage-link .arrow { color: var(--mint); }
-  .subpage-link .icon { width: auto; height: 26px; flex-shrink: 0; display: block; }
+  /* External SVG, so CSS can't reach its dark internals — flatten it to cream instead. */
+  .subpage-link .icon { width: auto; height: 26px; flex-shrink: 0; display: block; filter: var(--logo-filter); }
   .subpage-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
   .subpage-caption {
     font-family: "Space Mono", "Courier New", monospace;
     font-size: 0.68rem;
     color: var(--ink-soft);
+  }
+
+  .theme-toggle {
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    z-index: 10;
+    width: 46px;
+    height: 46px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    color: var(--ink);
+    background: var(--btn-face);
+    border: 2.5px solid var(--outline);
+    border-radius: 50%;
+    box-shadow: 4px 4px 0 var(--lilac);
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  .theme-toggle:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--lilac);
+  }
+  .theme-toggle:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 var(--lilac);
+  }
+  .theme-toggle .icon {
+    width: 22px;
+    height: 22px;
+    display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  /* Show the icon for the theme that's currently on: sun by day, moon by night. */
+  :root[data-theme="dark"] .theme-toggle .sun,
+  :root:not([data-theme="dark"]) .theme-toggle .moon { display: none; }
+  :root[data-theme="dark"] .theme-toggle .moon { color: var(--lilac); }
+  :root:not([data-theme="dark"]) .theme-toggle .sun { color: var(--pink); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .theme-toggle { transition: none; }
+    .theme-toggle:hover, .theme-toggle:active { transform: none; }
+  }
+
+  @media (max-width: 420px) {
+    .theme-toggle { top: 10px; right: 10px; }
   }
 
   footer {
@@ -191,6 +297,16 @@
 </style>
 </head>
 <body>
+  <button type="button" class="theme-toggle" aria-label="Switch to dark theme">
+    <svg class="icon sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <circle cx="12" cy="12" r="4.2" />
+      <path d="M12 2.4v2.4M12 19.2v2.4M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2.4 12h2.4M19.2 12h2.4M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7" />
+    </svg>
+    <svg class="icon moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M20.5 14.3A8.6 8.6 0 0 1 9.7 3.5a8.6 8.6 0 1 0 10.8 10.8z" />
+    </svg>
+  </button>
+
   <main class="card">
     <span class="badge">✦ welcome to my corner of the web ✦</span>
 
@@ -232,5 +348,46 @@
 
     <footer>made with <span class="heart">♥</span> by Fauxvale</footer>
   </main>
+
+  <script>
+    (function () {
+      var storageKey = "fauxvale-color-scheme";
+      var toggle = document.querySelector(".theme-toggle");
+      var root = document.documentElement;
+      var osPrefersDark = window.matchMedia("(prefers-color-scheme: dark)");
+
+      function applyTheme(theme) {
+        root.setAttribute("data-theme", theme);
+        // The icon shows the active theme, so spell the action out for screen readers.
+        toggle.setAttribute("aria-label", theme === "dark" ? "Switch to light theme" : "Switch to dark theme");
+      }
+
+      // The head script already picked the starting theme; sync the label to it.
+      applyTheme(root.getAttribute("data-theme") === "dark" ? "dark" : "light");
+
+      toggle.addEventListener("click", function () {
+        var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        applyTheme(next);
+        try {
+          localStorage.setItem(storageKey, next);
+        } catch (error) {
+          // Storage can fail in private browsing; the theme still applies for this visit.
+        }
+      });
+
+      // Follow the OS while the visitor hasn't made an explicit choice.
+      osPrefersDark.addEventListener("change", function (event) {
+        var saved = null;
+        try {
+          saved = localStorage.getItem(storageKey);
+        } catch (error) {
+          saved = null;
+        }
+        if (saved !== "light" && saved !== "dark") {
+          applyTheme(event.matches ? "dark" : "light");
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
