@@ -18,7 +18,13 @@
   --line:rgba(232,228,218,.16); --line2:rgba(232,228,218,.09);
 }
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;max-width:100%;overflow-x:hidden}
+/* `overflow-x: clip`, NOT `hidden`. With `hidden`, the other axis computes from `visible`
+   to `auto`, which silently turns html/body into scroll containers — and a position:sticky
+   element sticks to its nearest scrolling ancestor, which would then be <body>, which
+   never scrolls itself (the document does). The result: sticky elements quietly do
+   nothing. `clip` clips just the same but creates no scroll container, so the sidebar,
+   the view header and the mobile bar all stick to the viewport as intended. */
+html,body{margin:0;padding:0;max-width:100%;overflow-x:clip}
 body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,serif;font-size:18px;line-height:1.6;
   background-image:radial-gradient(ellipse at 50% -10%, rgba(201,164,92,.06), transparent 60%);}
 h1,h2,h3,.disp,.eyebrow{font-family:'Oswald',sans-serif}
