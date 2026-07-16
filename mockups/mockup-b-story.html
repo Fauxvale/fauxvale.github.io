@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup B — Day Spine — The Adventures of Jules</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tome.css">
+<style>
+/* ── Shell B: a day rail as primary navigation. Only this part differs from Mockup A. ── */
+
+.top{position:sticky;top:0;z-index:40;background:rgba(20,22,26,.95);backdrop-filter:blur(9px);border-bottom:1px solid var(--line)}
+.modes{display:flex;justify-content:center;gap:0;border-bottom:1px solid var(--line2)}
+.mode{font-family:'Oswald';text-transform:uppercase;letter-spacing:.2em;font-size:.76rem;background:none;border:none;
+  color:var(--dim);padding:13px 24px;cursor:pointer;position:relative;font-weight:500}
+.mode[aria-selected="true"]{color:var(--gold)}
+.mode[aria-selected="true"]::after{content:"";position:absolute;left:14%;right:14%;bottom:-1px;height:2px;background:var(--gold)}
+.mode:focus-visible{outline:2px solid var(--gold);outline-offset:-3px}
+
+/* The rail: one column per day, height ∝ that day's event count. Nav and chart at once. */
+.rail{display:flex;align-items:flex-end;justify-content:center;gap:2px;padding:12px 20px 0;
+  overflow-x:auto;max-width:1280px;margin:0 auto}
+/* Columns grow to share the rail but stop at a sane width: a 2-day save must not stretch
+   two bars across the whole viewport. Found via ?data=minimal — Jules's 14 days hide this. */
+.rw{flex:1 1 auto;min-width:34px;max-width:76px;display:flex;flex-direction:column;align-items:center;gap:5px;
+  cursor:pointer;background:none;border:none;padding:4px 2px 8px;border-bottom:2px solid transparent;transition:.15s}
+.rw .rc{font-family:'JetBrains Mono';font-size:.5rem;color:var(--dim);opacity:0;transition:.15s}
+.rw .rb{width:100%;max-width:26px;display:flex;flex-direction:column-reverse;border-radius:2px 2px 0 0;overflow:hidden;
+  box-shadow:0 0 0 1px var(--line2);opacity:.55;transition:.15s}
+.rw .rd{font-family:'Oswald';text-transform:uppercase;font-size:.6rem;letter-spacing:.04em;color:var(--dim);
+  white-space:nowrap;transition:.15s}
+.rw:hover .rb{opacity:.85} .rw:hover .rc{opacity:1} .rw:hover .rd{color:var(--text)}
+.rw.on{border-bottom-color:var(--gold)}
+.rw.on .rb{opacity:1}
+.rw.on .rc{opacity:1;color:var(--gold)}
+.rw.on .rd{color:var(--gold)}
+.rw:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.rw.undated .rb{background:repeating-linear-gradient(45deg,var(--amber),var(--amber) 2px,transparent 2px,transparent 5px);
+  opacity:.5;min-height:14px}
+.rw.undated.on .rd,.rw.undated:hover .rd{color:var(--amber)}
+.rw.undated.on{border-bottom-color:var(--amber)}
+.railcap{max-width:1280px;margin:0 auto;padding:0 20px 9px;display:flex;justify-content:space-between;
+  font-family:'JetBrains Mono';font-size:.52rem;color:var(--dim);letter-spacing:.08em}
+
+/* Day panel */
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px 90px}
+.dhead{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;
+  border-bottom:1px solid var(--line);padding:30px 0 16px;margin-bottom:22px}
+.dhead .dl{font-family:'JetBrains Mono';font-size:.56rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.dhead h2{font-family:'Oswald';text-transform:uppercase;letter-spacing:.06em;font-weight:700;
+  font-size:clamp(1.8rem,4.4vw,3rem);margin:6px 0 0;line-height:1}
+.dhead .dsub{font-family:'JetBrains Mono';font-size:.6rem;color:var(--dim);margin-top:8px}
+.dnav{display:flex;gap:8px}
+.dnav button{font-family:'Oswald';text-transform:uppercase;letter-spacing:.1em;font-size:.68rem;background:var(--panel);
+  border:1px solid var(--line);color:var(--text);padding:8px 15px;border-radius:4px;cursor:pointer}
+.dnav button:disabled{opacity:.3;cursor:default}
+
+.dstats{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--line2);border-radius:6px;overflow:hidden;margin-bottom:24px}
+.ds{flex:1;min-width:96px;padding:14px 12px;text-align:center;border-right:1px solid var(--line2)}
+.ds:last-child{border-right:none}
+.ds .v{font-family:'Oswald';font-weight:600;font-size:1.5rem;color:var(--gold);display:block;line-height:1}
+.ds .k{font-family:'JetBrains Mono';font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-top:5px}
+
+.blk{margin:0 0 34px}
+.blk > h3{font-family:'Oswald';text-transform:uppercase;letter-spacing:.16em;font-size:.8rem;color:var(--gold);
+  margin:0 0 4px;display:flex;align-items:center;gap:12px}
+.blk > h3 .hr{flex:1;height:1px;background:var(--line2)}
+.blk > h3 .n{font-family:'JetBrains Mono';font-size:.58rem;color:var(--dim);letter-spacing:.08em}
+.blksub{font-style:italic;color:var(--dim);font-size:.86rem;margin:0 0 14px}
+
+/* Event breakdown */
+.ebars{display:flex;flex-direction:column;gap:7px}
+.eb{display:grid;grid-template-columns:150px 1fr 48px;gap:12px;align-items:center}
+.eb .el{font-family:'Oswald';text-transform:uppercase;letter-spacing:.06em;font-size:.7rem;color:var(--dim)}
+.eb .et{height:9px;background:var(--line2);border-radius:5px;overflow:hidden}
+.eb .et i{display:block;height:100%;border-radius:5px}
+.eb .en{font-family:'JetBrains Mono';font-size:.62rem;color:var(--dim);text-align:right}
+
+.locs{display:flex;flex-wrap:wrap;gap:6px}
+.loc{font-family:'JetBrains Mono';font-size:.56rem;color:var(--dim);border:1px solid var(--line2);
+  border-radius:12px;padding:3px 9px}
+
+/* Ledgers */
+.led{max-width:1080px;margin:0 auto}
+.ledgrp{border-top:1px solid var(--line2);padding-top:8px;margin-top:26px}
+.ledgrp:first-child{border-top:none;margin-top:0}
+.ledhd{display:flex;align-items:center;gap:16px;cursor:pointer;padding:16px 2px;user-select:none}
+.ledhd:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.ledhd .st{font-family:'Oswald';text-transform:uppercase;letter-spacing:.14em;font-weight:500;font-size:1.2rem}
+.ledhd .hr{flex:1;height:1px;background:var(--line)}
+.ledhd .n{font-family:'JetBrains Mono';font-size:.6rem;color:var(--dim)}
+.ledhd .chev{color:var(--dim);transition:transform .25s}
+.ledgrp.closed .chev{transform:rotate(-90deg)}
+.ledgrp.closed .ledbody{display:none}
+.ledbody{padding-bottom:10px}
+.ledwhy{font-family:'JetBrains Mono';font-size:.56rem;color:var(--dim);letter-spacing:.06em;margin:-8px 0 16px}
+
+/* Compact masthead. In B the selected day is the content, so a full-height monumental
+   header would push it below the fold — the exact failure B exists to fix. The name still
+   reads as the title, just at a scale that leaves room for the day. */
+.mast{display:flex;align-items:baseline;justify-content:center;gap:14px;flex-wrap:wrap;
+  text-align:center;padding:18px 16px 14px;border-bottom:1px solid var(--line2)}
+.mast .kicker{font-size:.92rem;margin:0}
+.mast .name{font-size:clamp(1.5rem,3.4vw,2.2rem);letter-spacing:.08em}
+.mast .eyebrow{font-size:.58rem;letter-spacing:.28em;width:100%;margin-bottom:2px}
+.mast .subtitle{font-size:.82rem;margin:0;max-width:none;flex-basis:100%}
+@media(max-width:640px){ .mast .subtitle{display:none} }
+@media(max-width:760px){
+  .rail{gap:1px;padding:10px 10px 0}
+  .rw{min-width:26px} .rw .rd{font-size:.5rem;writing-mode:vertical-rl;transform:rotate(180deg);height:44px}
+  .eb{grid-template-columns:106px 1fr 40px}
+  .dhead{padding-top:20px}
+}
+</style>
+</head>
+<body>
+
+<!-- Same bootstrap as Mockup A: ?data=minimal|nulldays swaps a fixture in before parse. -->
+<script>
+(function(){
+  var q = new URLSearchParams(location.search).get('data');
+  var file = (q === 'minimal' || q === 'nulldays') ? 'fixtures/' + q + '.js' : 'jules-data.js';
+  document.write('<script src="' + file + '"><\/script>');
+})();
+</script>
+<script src="tome.js"></script>
+
+<div class="top">
+  <div class="modes" role="tablist">
+    <button class="mode" role="tab" aria-selected="true"  data-m="journey">The Journey</button>
+    <button class="mode" role="tab" aria-selected="false" data-m="ledgers">Ledgers</button>
+    <button class="mode" role="tab" aria-selected="false" data-m="intel">IntelEngine</button>
+  </div>
+  <div id="railWrap">
+    <div class="rail" id="rail"></div>
+    <div class="railcap"><span id="railA"></span><span>bar height ∝ events that day · ← → to move</span><span id="railB"></span></div>
+  </div>
+</div>
+
+<header class="mast" id="mast">
+  <div class="eyebrow" id="eyebrow">A SkyrimNet Field Journal</div>
+  <div class="kicker">The Adventures of</div>
+  <h1 class="name" id="charName">—</h1>
+  <div class="subtitle" id="subtitle"></div>
+</header>
+
+<main class="wrap" id="main"></main>
+
+<script>
+"use strict";
+
+const UNDATED = '__undated';
+const main = document.getElementById('main');
+const lightbox = makeLightbox();
+let mode = 'journey';
+let day = prep.days[0] || UNDATED;
+
+/* A day's memories are its story, so they're shown whole — but "whole" has to have a
+   ceiling or a bad save rebuilds the endless scroll this mockup exists to kill. Jules's
+   busiest day is 50; ?data=nulldays pushes 153 into the undated bucket alone. */
+const CAP_ROWS = 40;
+function memList(rows, id){
+  if(rows.length <= CAP_ROWS) return rows.map(m=>memRow(m,'')).join('');
+  const head = rows.slice(0, CAP_ROWS).map(m=>memRow(m,'')).join('');
+  return `<div id="${id}">${head}</div>
+    <button class="showmore" data-more="${id}">Show all ${rows.length}</button>`;
+}
+/* Re-render on demand; the rows are already in the DOM order we want. */
+function bindMore(map){
+  document.querySelectorAll('[data-more]').forEach(b => b.addEventListener('click', ()=>{
+    const rows = map[b.dataset.more] || [];
+    document.getElementById(b.dataset.more).innerHTML = rows.map(m=>memRow(m,'')).join('');
+    b.remove();
+  }));
+}
+
+/* ── Rail ── */
+function renderRail(){
+  const rail = document.getElementById('rail');
+  let html = prep.days.map(d => {
+    const e = prep.evByDay[d];
+    const h = Math.max(5, Math.round(e.total / prep.maxEvents * 62));
+    const segs = CATORDER.filter(c=>e.cats[c]).map(c =>
+      `<i style="display:block;height:${(e.cats[c]/e.total*100).toFixed(1)}%;background:${CAT[c].color}"></i>`).join('');
+    const short = d.replace(/^(\d+\w*) of .*/,'$1');
+    return `<button class="rw${d===day?' on':''}" data-d="${esc(d)}" title="${esc(d)} — ${e.total} events">
+      <span class="rc">${e.total}</span>
+      <span class="rb" style="height:${h}px">${segs}</span>
+      <span class="rd">${esc(short)}</span></button>`;
+  }).join('');
+  // The undated bucket is a first-class stop on the rail, not a footnote. Without it these
+  // memories would have nowhere to live in a day-organised page.
+  if(prep.undated.length){
+    html += `<button class="rw undated${day===UNDATED?' on':''}" data-d="${UNDATED}"
+        title="${prep.undated.length} memories with no in-game day">
+      <span class="rc">${prep.undated.length}</span>
+      <span class="rb" style="height:14px"></span>
+      <span class="rd">n/a</span></button>`;
+  }
+  rail.innerHTML = html;
+  rail.querySelectorAll('.rw').forEach(b => b.addEventListener('click', ()=>{ day = b.dataset.d; render(); }));
+  // The endpoint labels exist because a long rail abbreviates each day to "19TH" and loses
+  // the month. A short rail is centered and already fully labelled, so they'd just float
+  // at the far edges, disconnected from the bars.
+  const wide = prep.days.length > 5;
+  document.getElementById('railA').textContent = wide ? (prep.days[0] || '') : '';
+  document.getElementById('railB').textContent = wide ? (prep.days[prep.days.length-1] || '') : '';
+  const on = rail.querySelector('.rw.on');
+  if(on && on.scrollIntoView) on.scrollIntoView({ block:'nearest', inline:'nearest' });
+}
+
+/* ── Day view ── */
+function dayView(){
+  if(day === UNDATED) return undatedView();
+  const e = prep.evByDay[day] || { total:0, cats:{} };
+  const mems = prep.byDay[day] || [];
+  const caps = prep.capsByDay[day] || [];
+  const i = prep.days.indexOf(day);
+
+  const locs = [...new Set(mems.map(m => (m.location||'').split(',')[0].trim()).filter(Boolean))];
+
+  const stats = [
+    ['v', e.total, 'Events'], ['v', mems.length, 'Memories'], ['v', caps.length, 'Captures'],
+    ['v', locs.length, 'Places']
+  ].map(([,v,k]) => `<div class="ds"><span class="v">${v}</span><span class="k">${k}</span></div>`).join('');
+
+  const ebars = CATORDER.filter(c=>e.cats[c]).map(c => `<div class="eb">
+      <span class="el">${CAT[c].label}</span>
+      <span class="et"><i style="width:${(e.cats[c]/e.total*100).toFixed(1)}%;background:${CAT[c].color}"></i></span>
+      <span class="en">${e.cats[c]}</span></div>`).join('');
+
+  let html = `<div class="dhead">
+      <div><div class="dl">Day ${i+1} of ${prep.days.length}</div>
+        <h2>${esc(day)}</h2>
+        <div class="dsub">${locs.slice(0,3).map(esc).join(' · ')}${locs.length>3?' · +'+(locs.length-3)+' more':''}</div></div>
+      <div class="dnav"><button id="dp" ${i<=0?'disabled':''}>← Prev</button><button id="dn" ${i>=prep.days.length-1?'disabled':''}>Next →</button></div>
+    </div>
+    <div class="dstats">${stats}</div>`;
+
+  html += `<div class="blk"><h3>What happened<span class="hr"></span><span class="n">${e.total} events</span></h3>
+    <p class="blksub">The event log records counts by type, not text — <code>events_by_day</code> is a tally. The memories below are the narrative.</p>
+    ${ebars || '<div class="empty">No events logged this day.</div>'}</div>`;
+
+  html += `<div class="blk"><h3>Memories formed<span class="hr"></span><span class="n">${mems.length}</span></h3>
+    ${mems.length ? memList(mems, 'dayMems') : '<div class="empty">No memories formed this day.</div>'}</div>`;
+
+  if(prep.hasCaptures){
+    html += `<div class="blk"><h3>Captures<span class="hr"></span><span class="n">${caps.length}</span></h3>
+      ${caps.length
+        ? `<div class="ogrid" id="dayCaps">${caps.map((s,k)=>captureCard(s,k)).join('')}</div>`
+        : '<div class="empty">No captures on this day.</div>'}</div>`;
+  }
+
+  if(locs.length) html += `<div class="blk"><h3>Places<span class="hr"></span><span class="n">${locs.length}</span></h3>
+    <div class="locs">${locs.map(l=>`<span class="loc">${esc(l)}</span>`).join('')}</div></div>`;
+
+  setTimeout(()=>{
+    const p=document.getElementById('dp'), n=document.getElementById('dn');
+    if(p) p.addEventListener('click',()=>{ day=prep.days[i-1]; render(); });
+    if(n) n.addEventListener('click',()=>{ day=prep.days[i+1]; render(); });
+    const g = document.getElementById('dayCaps');
+    if(g) bindCaptures(g, lightbox, k => ({ list: caps, index: k }));
+    bindMore({ dayMems: mems });
+  },0);
+  return html;
+}
+
+/* The undated bucket. A day-organised page has to answer for records with no day —
+   this is the honest answer, and it is why B needs the timestamp fix more than A does. */
+function undatedView(){
+  const mems = prep.undated;
+  setTimeout(()=>bindMore({ undMems: mems }), 0);
+  return `<div class="dhead">
+      <div><div class="dl" style="color:var(--amber)">Off the calendar</div>
+        <h2 style="color:var(--amber)">Undated</h2>
+        <div class="dsub">${mems.length} memor${mems.length===1?'y':'ies'} the timeline cannot place</div></div>
+    </div>
+    ${noticesHtml()}
+    <div class="blk"><h3 style="color:var(--amber)">Memories<span class="hr"></span><span class="n">${mems.length}</span></h3>
+      ${mems.length ? memList(mems, 'undMems') : '<div class="empty">Nothing undated — every memory has a day.</div>'}</div>`;
+}
+
+/* ── Ledgers: everything with no day. Kills, diary, whispers and the feature carry no
+      timestamp at all, so a day spine cannot hold them. This is the hybrid seam. ── */
+function ledgerView(){
+  const grp = (id, title, n, why, body, closed) => `<div class="ledgrp${closed?' closed':''}" id="${id}">
+      <div class="ledhd" role="button" tabindex="0" aria-expanded="${!closed}">
+        <span class="st">${esc(title)}</span><span class="hr"></span>
+        ${n!=null?`<span class="n">${n}</span>`:''}<span class="chev">▼</span></div>
+      <div class="ledbody">${why?`<div class="ledwhy">${esc(why)}</div>`:''}${body}</div></div>`;
+
+  let html = `<p class="seccap" style="margin:24px 0 8px">These records carry no in-game day, so the rail above cannot hold them. They are the ledger behind the journey rather than a part of it.</p>`;
+
+  if((SN.memories||[]).length) html += grp('lg-constel','Constellation of Memory',(SN.memories||[]).length,
+    'memories have days, but the projection is a whole-run view — pinning it to one day would waste it',
+    `<div class="togline">
+        <span class="toggle" id="projToggle"><button data-proj="umap" class="on">UMAP</button><button data-proj="pca">PCA</button></span>
+        <span class="cnote" id="projNote"></span>
+        <span class="cnote" id="dayHint" style="color:var(--gold)"></span></div>
+      <div class="constel" id="constel"><div class="ctip" id="ctip"></div></div>`, false);
+
+  if((SN.leaderboard||[]).length){
+    const legend = Object.keys(KCAT).map(k=>`<span class="lg"><i style="background:${KCAT[k]}"></i>${k}</span>`).join('');
+    const rows = SN.leaderboard.map((e,i)=>{
+      const segs = Object.keys(e.cats||{}).map(c=>`<i style="width:${(e.cats[c]/e.total*100).toFixed(1)}%;background:${KCAT[c]||'var(--dim)'}" title="${esc(c)}: ${e.cats[c]}"></i>`).join('');
+      const chips = (e.victims||[]).map(([v,n])=>`<span class="vchip">${esc(v)} ×${n}</span>`).join('');
+      return `<div class="lbrow"><div class="lbrank">${String(i+1).padStart(2,'0')}</div>
+        <div><div class="lbname" style="color:${colorFor(e.killer)}">${esc(e.killer)}</div>
+          <div class="lbtot">${e.total} kill${e.total===1?'':'s'}</div></div>
+        <div><div class="lbbar">${segs}</div><div class="vchips">${chips}</div></div></div>`;
+    }).join('');
+    html += grp('lg-kills','Blood Leaderboard',SN.leaderboard.length,
+      'leaderboard is aggregated per killer — the payload keeps no day on a kill',
+      `<div class="legend">${legend}</div><div class="lb">${rows}</div>`, true);
+  }
+
+  if(prep.hasDiary) html += grp('lg-diary','The Diary',SN.diary.length,
+    'diary entries carry no day field in the payload',
+    SN.diary.map(d=>`<div class="page" style="max-width:720px;margin:0 auto 20px">
+      <div class="phd"><span class="pau">${esc(d.actor)}</span><span class="ppl">${esc(d.loc||'')}${d.emotion?' · '+esc(d.emotion):''}</span></div>
+      <div class="pbody">${(d.content||'').split(/\n\s*\n/).map(p=>`<p>${emph(p)}</p>`).join('')}</div></div>`).join(''), true);
+
+  if(prep.hasCaptures){
+    const s = SN.omni_summary||{};
+    html += grp('lg-portrait','A Portrait of the Land',null,
+      'distilled from every capture across the whole run',
+      (s.paragraphs&&s.paragraphs.length)?`<div class="portrait">
+        <h3>${esc(s.title||'A Portrait of the Land')}</h3>
+        ${s.paragraphs.map(p=>`<p>${emph(p)}</p>`).join('')}
+        ${s.foot?`<div class="pfoot">${esc(s.foot)}</div>`:''}</div>`:'<div class="empty">No summary.</div>', true);
+  }
+
+  if(prep.orphanCaps.length) html += grp('lg-orphan','Captures with no day',prep.orphanCaps.length,
+    'ts did not match any day on the rail',
+    `<div class="ogrid" id="orphanCaps">${prep.orphanCaps.map((s,k)=>captureCard(s,k)).join('')}</div>`, true);
+
+  if(prep.hasGossip){
+    const classed = GOSSIP.map(g=>({...g,tags:classifyWhisper(g.rumor+' '+g.scene)}));
+    const cards = classed.map(g=>{
+      const primary=g.tags[0];
+      const tagHtml=g.tags.map(t=>`<span class="wtag" style="background:${WTAG[t].c};color:#14161a">${esc(WTAG[t].l)}</span>`).join('');
+      let scene=(g.scene||'').trim(); scene=scene.charAt(0).toUpperCase()+scene.slice(1).replace(/[.\s]+$/,'')+':';
+      return `<div class="wcard" style="border-top-color:${WTAG[primary].c}">
+        <div class="wtags">${tagHtml}</div>
+        <div class="wh">${esc(g.speaker)}<span class="arr">→</span><span style="color:var(--gold)">${esc(g.listener)}</span></div>
+        <div class="wscene">${esc(scene)}</div><div class="wrumor">${esc(g.rumor)}</div></div>`;
+    }).join('');
+    html += grp('lg-whispers','Whispers Beyond the Road',classed.length,
+      'gossip is reconstructed from log output — no game_time is recorded with it',
+      `<div class="wgrid">${cards}</div>`, true);
+  }
+
+  if(prep.hasFeature){
+    const f=SN.feature;
+    const stats=[['count','Memories'],['kills','Kills']].filter(([k])=>f[k]!=null)
+      .map(([k,l])=>`<div class="fs"><span class="v">${esc(f[k])}</span><span class="k">${l}</span></div>`).join('');
+    const qs=(f.quotes||[]).map(q=>{
+      const meta=[q.day,q.emotion,q.location].filter(Boolean).join(' · ')||(q.imp!=null?'imp '+q.imp.toFixed(2):'');
+      return `<div class="qcard">${meta?`<div class="qm">${esc(meta)}</div>`:''}<div class="qc">${emph(q.content||'')}</div></div>`;
+    }).join('');
+    html += grp('lg-feature',f.title||f.name,null,'a whole-run thread, not a single day',
+      `<div class="feat"><div class="fintro">${(f.intro||[]).map(p=>`<p>${emph(p)}</p>`).join('')}</div>
+        ${stats?`<div class="fstats">${stats}</div>`:''}<div class="qgrid">${qs}</div></div>`, true);
+  }
+
+  setTimeout(()=>{
+    document.querySelectorAll('.ledhd').forEach(h => {
+      const t = () => {
+        const g = h.parentElement;
+        g.classList.toggle('closed');
+        h.setAttribute('aria-expanded', String(!g.classList.contains('closed')));
+      };
+      h.addEventListener('click', t);
+      h.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); t(); } });
+    });
+    const cEl = document.getElementById('constel');
+    if(cEl){
+      const c = makeConstellation(cEl, document.getElementById('ctip'));
+      const note = document.getElementById('projNote');
+      note.textContent = c.projNote();
+      document.getElementById('projToggle').addEventListener('click', e=>{
+        const b=e.target.closest('button'); if(!b) return;
+        c.setProj(b.dataset.proj);
+        document.querySelectorAll('#projToggle button').forEach(x=>x.classList.toggle('on',x.dataset.proj===c.proj));
+        note.textContent=c.projNote();
+      });
+      // Carry the selected day across: the one place the spine and the whole-run view meet.
+      if(day !== UNDATED && prep.byDay[day] && prep.byDay[day].length){
+        c.setDay(day);
+        document.getElementById('dayHint').textContent = `· lit: ${day} (${prep.byDay[day].length})`;
+      }
+    }
+    const og = document.getElementById('orphanCaps');
+    if(og) bindCaptures(og, lightbox, k => ({ list: prep.orphanCaps, index: k }));
+  },0);
+  return `<div class="led">${html}</div>`;
+}
+
+/* ── IntelEngine: its own axis. IE.events[].day runs 3.3–15.4, a numeric scale unrelated
+      to the calendar labels on the rail. Joining them would be a guess that invents story. ── */
+function intelView(){
+  let html = `<div class="quarantine" style="margin-top:24px"><b>A separate clock</b>
+    IntelEngine stamps its events with a numeric day (${(IE.events||[]).length?Math.min(...IE.events.map(e=>+e.day)).toFixed(1):'—'}–${(IE.events||[]).length?Math.max(...IE.events.map(e=>+e.day)).toFixed(1):'—'}),
+    not the in-game calendar the rail above uses. There is no reliable mapping between them in the payload, so this tab keeps its own order rather than guessing dates.</div>`;
+
+  if((IE.relations||[]).length){
+    const rows = IE.relations.slice().sort((a,b)=>a.score-b.score).map(r=>{
+      const fa=facInfo[r.a], fb=facInfo[r.b];
+      const tA=fa?`${fa.name} — ${(fa.leaders||[]).join(', ')} · ${fa.hold}`:r.a;
+      const tB=fb?`${fb.name} — ${(fb.leaders||[]).join(', ')} · ${fb.hold}`:r.b;
+      const half=Math.abs(r.score)/100*50;
+      const seg=r.score<0?`<div class="seg" style="right:50%;width:${half}%;background:var(--blood)"></div>`
+              :r.score>0?`<div class="seg" style="left:50%;width:${half}%;background:${cFac(r.a)}"></div>`:'';
+      const sc=r.score<0?'var(--blood)':r.score>0?'var(--moss)':'var(--dim)';
+      return `<div class="relrow"><div class="fa" style="color:${cFac(r.a)}" title="${esc(tA)}">${esc(r.a)}</div>
+        <div class="track${r.war?' war':''}"><div class="tick"></div>${seg}</div>
+        <div class="fb" style="color:${cFac(r.b)}" title="${esc(tB)}">${esc(r.b)}${r.war?'<span class="wartag">⚔ At War</span>':''}</div>
+        <div class="sc" style="color:${sc}">${r.score>0?'+':''}${r.score}</div></div>`;
+    }).join('');
+    html += `<div class="blk"><h3>The Great Powers<span class="hr"></span><span class="n">${IE.relations.length}</span></h3>${rows}</div>`;
+  }
+
+  if(prep.hasWar){
+    const panels = IE.war.map(w=>{
+      const intro = w.ongoing
+        ? `${w.declaration?esc(w.declaration)+' ':''}The war rages on — ${w.battles} battle${w.battles===1?'':'s'} fought, no victor yet.`
+        : `${w.declaration?esc(w.declaration)+' ':''}Concluded after ${w.battles} battle${w.battles===1?'':'s'} — <strong style="color:var(--gold)">${esc(w.victor)}</strong> emerged victorious.`;
+      return `<div class="warpanel${w.ongoing?' ongoing':''}"><p class="warintro">${intro}</p>
+        <div class="versus">
+          <div class="side r"><div class="sn" style="color:${cFac(w.a)}">${esc(w.a)}</div>
+            <div class="sl">${esc((w.a_leaders||[]).join(', '))}</div>
+            ${gauge('Morale',w.a_morale,cFac(w.a))}${gauge('Strength',w.a_strength,cFac(w.a))}</div>
+          <div class="vs">Versus</div>
+          <div class="side"><div class="sn" style="color:${cFac(w.b)}">${esc(w.b)}</div>
+            <div class="sl">${esc((w.b_leaders||[]).join(', '))}</div>
+            ${gauge('Morale',w.b_morale,cFac(w.b))}${gauge('Strength',w.b_strength,cFac(w.b))}</div></div>
+        <div class="warstatus">${w.ongoing?'⚔ War Ongoing':'Victor: '+esc(w.victor)}</div></div>`;
+    }).join('');
+    html += `<div class="blk"><h3>The War<span class="hr"></span><span class="n">${IE.war.length}</span></h3>${panels}</div>`;
+
+    if((IE.battles||[]).length){
+      const bs = IE.battles.map(b=>`<div class="battle">
+        <div class="bh"><span class="bl">${esc(b.loc)}</span>
+          <span class="br">day ${b.day} · ${esc(b.attacker)} → ${esc(b.defender)} · ${esc(b.result)}</span></div>
+        <p class="bn">${esc(b.narrative)}</p>
+        <div class="bloss">Losses — ${esc(b.attacker)}: ${b.att_losses} · ${esc(b.defender)}: ${b.def_losses}</div></div>`).join('');
+      html += `<div class="blk"><h3>Battles<span class="hr"></span><span class="n">${IE.battles.length}</span></h3>${bs}</div>`;
+    }
+  }
+
+  if((IE.events||[]).length){
+    const rows = IE.events.map(e=>{
+      const dc=e.delta<0?'var(--blood)':e.delta>0?'var(--moss)':'var(--dim)';
+      return `<div class="prov"><div class="provtag">${esc((e.type||'').replace(/_/g,' '))}</div>
+        <div><div class="pd">${esc(e.desc)}</div>
+          <div class="pp" style="color:${cFac(e.a)}">${esc(e.a)}${e.day!=null?` · day ${e.day}`:''}</div></div>
+        <div class="pdelta" style="color:${dc}">${e.delta>0?'+':''}${e.delta}</div></div>`;
+    }).join('');
+    html += `<div class="blk"><h3>Chronicle of Provocations<span class="hr"></span><span class="n">${IE.events.length}</span></h3>${rows}</div>`;
+  }
+  return html;
+}
+
+/* ── Render ── */
+function render(){
+  document.getElementById('railWrap').classList.toggle('hidden', mode !== 'journey');
+  document.getElementById('eyebrow').textContent =
+    mode === 'intel' ? 'An IntelEngine Dispatch' : 'A SkyrimNet Field Journal';
+  document.querySelectorAll('.mode').forEach(b => b.setAttribute('aria-selected', String(b.dataset.m === mode)));
+  if(mode === 'journey'){ renderRail(); main.innerHTML = dayView(); }
+  else if(mode === 'ledgers') main.innerHTML = ledgerView();
+  else main.innerHTML = intelView();
+}
+
+/* ── Boot ── */
+document.getElementById('charName').textContent = SN.player || '—';
+document.getElementById('subtitle').textContent = (SN.stats && SN.stats.subtitle) || '';
+document.querySelectorAll('.mode').forEach(b => b.addEventListener('click', ()=>{ mode = b.dataset.m; render(); window.scrollTo(0,0); }));
+addEventListener('keydown', e => {
+  if(mode !== 'journey') return;
+  if(document.querySelector('.lbox.open')) return;             // lightbox owns the arrows
+  if(/^(INPUT|TEXTAREA)$/.test((document.activeElement||{}).tagName)) return;
+  const i = prep.days.indexOf(day);
+  if(e.key === 'ArrowLeft'  && i > 0){ day = prep.days[i-1]; render(); }
+  if(e.key === 'ArrowRight' && i > -1 && i < prep.days.length-1){ day = prep.days[i+1]; render(); }
+});
+render();
+</script>
+</body>
+</html>
