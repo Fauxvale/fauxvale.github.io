@@ -1,0 +1,253 @@
+/* tome.css — the Illuminated Manuscript look, shared by both mockups.
+ *
+ * Lifted from The-Adventures-of-Jules.html (its inline <style>, lines 10-295) so the
+ * mockups are judged on structure, not on a restyle. Record-level components are copied
+ * as-is; the nav/shell styles are deliberately NOT here — the shell is what each mockup
+ * does differently, and each owns its own.
+ */
+
+:root{
+  --bg:#14161a; --panel:#1a1d23; --panel2:#20242b; --text:#e8e4da; --dim:#98938a;
+  --gold:#c9a45c; --steel:#7da3b8; --blood:#b0584e; --moss:#8ba06b; --violet:#a98cc0; --amber:#cf9a54;
+  --line:rgba(232,228,218,.16); --line2:rgba(232,228,218,.09);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;max-width:100%;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,serif;font-size:18px;line-height:1.6;
+  background-image:radial-gradient(ellipse at 50% -10%, rgba(201,164,92,.06), transparent 60%);}
+h1,h2,h3,.disp,.eyebrow{font-family:'Oswald',sans-serif}
+a{color:var(--gold)}
+.mono{font-family:'JetBrains Mono',monospace}
+::selection{background:rgba(201,164,92,.3)}
+.hidden{display:none!important}
+
+/* Masthead */
+.eyebrow{text-transform:uppercase;letter-spacing:.34em;font-size:.72rem;color:var(--gold);font-weight:500}
+.kicker{font-style:italic;font-family:'Crimson Pro';color:var(--dim);font-size:1.15rem;margin:14px 0 2px}
+.name{font-family:'Oswald';text-transform:uppercase;letter-spacing:.06em;font-weight:700;
+  line-height:.98;margin:0;color:var(--text);text-shadow:0 2px 30px rgba(201,164,92,.12)}
+.subtitle{font-style:italic;color:var(--dim);font-size:1.05rem;margin:16px auto 0;max-width:640px}
+.stats{display:flex;flex-wrap:wrap;gap:0}
+.stat{padding:6px 22px;border-right:1px solid var(--line);text-align:center}
+.stat:last-child{border-right:none}
+.stat .v{font-family:'Oswald';font-weight:600;font-size:1.55rem;color:var(--gold);display:block;line-height:1.1}
+.stat .k{font-family:'JetBrains Mono';font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-top:3px}
+
+/* Section captions */
+.seccap{color:var(--dim);font-style:italic;font-size:.98rem;margin:0 0 20px;max-width:70ch}
+
+/* Timeline */
+.tl{display:flex;align-items:flex-end;gap:10px;overflow-x:auto;padding:10px 0 4px;min-height:240px}
+.tlday{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:52px;flex:1}
+.tlbar{width:34px;display:flex;flex-direction:column-reverse;border-radius:2px 2px 0 0;overflow:hidden;box-shadow:0 0 0 1px var(--line2)}
+.tlseg{width:100%}
+.tldl{font-family:'JetBrains Mono';font-size:.56rem;color:var(--dim);text-align:center;line-height:1.25;white-space:nowrap}
+.tldt{font-family:'Oswald';font-size:.72rem;color:var(--text)}
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin:18px 0 6px}
+.lg{display:flex;align-items:center;gap:7px;font-size:.82rem;color:var(--dim)}
+.lg i{width:12px;height:12px;border-radius:2px;display:inline-block}
+
+/* Chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 16px}
+.chip{font-family:'Oswald';text-transform:uppercase;letter-spacing:.08em;font-size:.72rem;color:var(--dim);
+  background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:6px 14px;cursor:pointer;transition:.15s}
+.chip:hover{color:var(--text);border-color:var(--dim)}
+.chip.on{color:#14161a;background:var(--gold);border-color:var(--gold)}
+.chip .ct{font-family:'JetBrains Mono';font-size:.62rem;opacity:.7;margin-left:5px}
+.chip:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* Search field — new; the original has no text search anywhere */
+.search{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);
+  border-radius:20px;padding:0 14px;max-width:340px;flex:1}
+.search input{background:none;border:none;color:var(--text);font-family:'Crimson Pro',Georgia,serif;
+  font-size:.92rem;padding:9px 0;width:100%;outline:none}
+.search input::placeholder{color:var(--dim);font-style:italic}
+.search .si{color:var(--dim);font-size:.8rem}
+.search:focus-within{border-color:var(--gold)}
+.search .sx{background:none;border:none;color:var(--dim);cursor:pointer;font-size:1.1rem;line-height:1;padding:0}
+.search .sx:hover{color:var(--text)}
+mark{background:rgba(201,164,92,.28);color:var(--text);border-radius:2px}
+
+/* Constellation */
+.constel{position:relative;width:100%;background:radial-gradient(ellipse at 50% 40%, rgba(125,163,184,.05), transparent 70%);
+  border:1px solid var(--line2);border-radius:6px;overflow:hidden}
+.constel svg{display:block;width:100%;height:auto;touch-action:none}
+.cstar{cursor:grab}
+.cstar:active{cursor:grabbing}
+.ctip{position:absolute;pointer-events:none;z-index:5;max-width:290px;background:rgba(16,18,22,.97);border:1px solid var(--line);
+  border-radius:5px;padding:10px 12px;font-size:.82rem;opacity:0;transition:opacity .12s;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.ctip .cta{font-family:'Oswald';text-transform:uppercase;letter-spacing:.08em;font-size:.7rem;margin-bottom:4px}
+.ctip .ctm{font-family:'JetBrains Mono';font-size:.6rem;color:var(--dim);margin-top:6px}
+.togline{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:2px 0 14px}
+.toggle{display:inline-flex;border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.toggle button{font-family:'Oswald';text-transform:uppercase;letter-spacing:.1em;font-size:.7rem;background:none;border:none;
+  color:var(--dim);padding:6px 16px;cursor:pointer}
+.toggle button.on{background:var(--steel);color:#14161a}
+.cnote{font-family:'JetBrains Mono';font-size:.62rem;color:var(--dim)}
+
+/* Memories */
+.daygrp{margin:8px 0 22px}
+.dayhd{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--line2);padding-bottom:6px;margin-bottom:8px}
+.dayhd .dn{font-family:'Oswald';text-transform:uppercase;letter-spacing:.1em;font-size:.95rem;color:var(--gold)}
+.dayhd .dc{font-family:'JetBrains Mono';font-size:.62rem;color:var(--dim)}
+.mrow{display:grid;grid-template-columns:150px 1fr 96px;gap:16px;padding:12px 4px;border-bottom:1px solid var(--line2);align-items:start}
+.mrow .who{font-family:'Oswald';text-transform:uppercase;letter-spacing:.05em;font-size:.82rem}
+.mrow .meta{font-family:'JetBrains Mono';font-size:.58rem;color:var(--dim);margin-top:4px;text-transform:uppercase;letter-spacing:.05em}
+.mrow .mc{font-size:.96rem}
+.mrow .mloc{font-family:'JetBrains Mono';font-size:.6rem;color:var(--dim);margin-top:5px}
+.impwrap{text-align:right}
+.impbar{height:5px;background:var(--line);border-radius:3px;overflow:hidden;margin-top:5px}
+.impbar i{display:block;height:100%;background:var(--gold)}
+.imptx{font-family:'JetBrains Mono';font-size:.56rem;color:var(--dim)}
+.shown{font-family:'JetBrains Mono';font-size:.64rem;color:var(--dim);margin:2px 0 14px}
+
+/* Undated / quarantine notice — new. The original silently drops these. */
+.quarantine{border-left:2px solid var(--amber);background:rgba(207,154,84,.07);padding:12px 16px;margin:14px 0;
+  font-size:.88rem;color:var(--dim)}
+.quarantine b{color:var(--amber);font-family:'Oswald';text-transform:uppercase;letter-spacing:.1em;font-size:.7rem;
+  font-weight:500;display:block;margin-bottom:5px}
+
+/* Leaderboard */
+.lb{display:flex;flex-direction:column;gap:2px}
+.lbrow{display:grid;grid-template-columns:34px 150px 1fr;gap:14px;align-items:center;padding:12px 4px;border-bottom:1px solid var(--line2)}
+.lbrank{font-family:'JetBrains Mono';font-size:.9rem;color:var(--dim)}
+.lbname{font-family:'Oswald';text-transform:uppercase;letter-spacing:.05em;font-size:.92rem}
+.lbtot{font-family:'JetBrains Mono';font-size:.66rem;color:var(--dim);margin-top:2px}
+.lbbar{height:16px;display:flex;border-radius:3px;overflow:hidden;box-shadow:0 0 0 1px var(--line2);margin-bottom:7px}
+.lbbar i{height:100%}
+.vchips{display:flex;flex-wrap:wrap;gap:5px}
+.vchip{font-family:'JetBrains Mono';font-size:.58rem;color:var(--dim);border:1px solid var(--line2);border-radius:12px;padding:2px 8px}
+
+/* Diary page */
+.page{background:linear-gradient(180deg,#1e2027,#1a1d23);border:1px solid var(--line);border-radius:5px;
+  padding:34px 38px;box-shadow:0 20px 50px rgba(0,0,0,.4),inset 0 0 60px rgba(0,0,0,.25)}
+.page .phd{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line2);padding-bottom:10px;margin-bottom:16px}
+.page .pau{font-family:'Oswald';text-transform:uppercase;letter-spacing:.14em;font-size:.82rem;color:var(--gold)}
+.page .ppl{font-family:'JetBrains Mono';font-size:.6rem;color:var(--dim)}
+.page .pbody{font-size:1.04rem;line-height:1.72}
+.page .pbody p{margin:0 0 14px}
+.page .pbody p:first-of-type::first-letter{font-family:'Oswald';font-weight:700;float:left;font-size:3.4rem;line-height:.8;
+  padding:6px 10px 0 0;color:var(--gold)}
+
+/* OmniSight */
+.portrait{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:6px;
+  padding:30px 34px;margin-bottom:24px;position:relative}
+.portrait h3{font-family:'Oswald';text-transform:uppercase;letter-spacing:.16em;font-size:1.05rem;color:var(--gold);margin:0 0 14px;text-align:center}
+.portrait p{font-size:1.02rem;line-height:1.72;margin:0 0 14px}
+.portrait p:first-of-type::first-letter{font-family:'Oswald';font-weight:700;float:left;font-size:3.2rem;line-height:.8;padding:5px 9px 0 0;color:var(--gold)}
+.portrait .pfoot{font-family:'JetBrains Mono';font-size:.62rem;color:var(--dim);text-align:center;border-top:1px solid var(--line2);padding-top:12px;margin-top:6px}
+.ogrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.ocard{background:var(--panel);border:1px solid var(--line2);border-radius:5px;overflow:hidden;display:flex;flex-direction:column;
+  cursor:zoom-in;transition:border-color .15s}
+.ocard:hover{border-color:var(--gold)}
+.ocard:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.ocard img{width:100%;aspect-ratio:16/9;object-fit:cover;background:#0e1013;display:block}
+.ocard .obody{padding:12px 14px}
+.ocard .on{font-family:'Oswald';text-transform:uppercase;letter-spacing:.06em;font-size:.82rem;color:var(--text)}
+.ocard .om{font-family:'JetBrains Mono';font-size:.56rem;color:var(--dim);margin:4px 0 8px}
+.ocard .od{font-size:.86rem;color:var(--dim);line-height:1.5}
+.showmore{display:block;margin:22px auto 0;font-family:'Oswald';text-transform:uppercase;letter-spacing:.12em;font-size:.74rem;
+  background:var(--panel);border:1px solid var(--line);color:var(--gold);padding:10px 26px;border-radius:4px;cursor:pointer}
+
+/* Lightbox — new. The original renders 163 <img> and does nothing on click. */
+.lbox{position:fixed;inset:0;z-index:200;background:rgba(10,11,14,.96);display:none;
+  align-items:center;justify-content:center;flex-direction:column;padding:30px 20px}
+.lbox.open{display:flex}
+.lbox img{max-width:min(1200px,92vw);max-height:74vh;object-fit:contain;border:1px solid var(--line);border-radius:4px;background:#0e1013}
+.lbox .lcap{max-width:min(1200px,92vw);margin-top:16px}
+.lbox .lname{font-family:'Oswald';text-transform:uppercase;letter-spacing:.1em;font-size:.94rem;color:var(--gold)}
+.lbox .lmeta{font-family:'JetBrains Mono';font-size:.58rem;color:var(--dim);margin:5px 0 8px}
+.lbox .ldesc{font-size:.9rem;color:var(--dim);line-height:1.5;max-height:14vh;overflow:auto}
+.lbox .lnav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(26,29,35,.9);border:1px solid var(--line);
+  color:var(--text);width:46px;height:64px;cursor:pointer;font-size:1.5rem;border-radius:4px}
+.lbox .lprev{left:18px} .lbox .lnext{right:18px}
+.lbox .lnav:disabled{opacity:.25;cursor:default}
+.lbox .lx{position:absolute;top:18px;right:20px;background:none;border:none;color:var(--dim);font-size:2.2rem;cursor:pointer;line-height:1}
+.lbox .lx:hover{color:var(--text)}
+.lbox .lcount{position:absolute;top:26px;left:24px;font-family:'JetBrains Mono';font-size:.64rem;color:var(--dim);letter-spacing:.1em}
+
+/* Feature */
+.feat{background:radial-gradient(ellipse at 50% 0%, rgba(176,88,78,.12), transparent 65%),var(--panel);
+  border:1px solid var(--line);border-radius:6px;padding:30px 34px}
+.feat .fintro p{font-size:1.02rem;line-height:1.7;margin:0 0 14px}
+.feat .fstats{display:flex;flex-wrap:wrap;gap:0;margin:20px 0 24px;border-top:1px solid var(--line2);border-bottom:1px solid var(--line2)}
+.feat .fs{padding:12px 22px;border-right:1px solid var(--line2);text-align:center}
+.feat .fs:last-child{border-right:none}
+.feat .fs .v{font-family:'Oswald';font-weight:600;font-size:1.4rem;color:var(--blood);display:block}
+.feat .fs .k{font-family:'JetBrains Mono';font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-top:2px}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.qcard{background:var(--panel2);border:1px solid var(--line2);border-left:3px solid var(--blood);border-radius:4px;padding:14px 16px}
+.qcard .qm{font-family:'JetBrains Mono';font-size:.56rem;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.qcard .qc{font-size:.92rem;line-height:1.55}
+
+/* Relations */
+.relrow{display:grid;grid-template-columns:1fr 46% 1fr 60px;gap:14px;align-items:center;padding:11px 4px;border-bottom:1px solid var(--line2)}
+.relrow .fa{text-align:right;font-family:'Oswald';text-transform:uppercase;letter-spacing:.04em;font-size:.8rem;cursor:help}
+.relrow .fb{text-align:left;font-family:'Oswald';text-transform:uppercase;letter-spacing:.04em;font-size:.8rem;cursor:help}
+.track{position:relative;height:8px;background:var(--line);border-radius:5px}
+.track.war{box-shadow:0 0 10px rgba(176,88,78,.6)}
+.track .tick{position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--dim)}
+.track .seg{position:absolute;top:0;height:100%;border-radius:5px}
+.relrow .sc{font-family:'JetBrains Mono';font-size:.82rem;text-align:right}
+.wartag{font-family:'Oswald';font-size:.6rem;letter-spacing:.1em;color:var(--blood);border:1px solid var(--blood);border-radius:3px;padding:1px 5px;margin-left:6px;white-space:nowrap}
+
+/* War */
+.warpanel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:24px 28px;margin-bottom:18px}
+.warpanel.ongoing{border-color:rgba(176,88,78,.4)}
+.warintro{font-style:italic;color:var(--dim);margin:0 0 18px;font-size:.96rem}
+.versus{display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:center}
+.side .sn{font-family:'Oswald';text-transform:uppercase;letter-spacing:.06em;font-size:1rem;margin-bottom:3px}
+.side .sl{font-family:'JetBrains Mono';font-size:.58rem;color:var(--dim);margin-bottom:12px}
+.side.r{text-align:right}
+.gauge{margin:8px 0}
+.gauge .gl{font-family:'JetBrains Mono';font-size:.56rem;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);display:flex;justify-content:space-between}
+.gbar{height:7px;background:var(--line);border-radius:4px;overflow:hidden;margin-top:3px}
+.gbar i{display:block;height:100%}
+.vs{font-family:'Oswald';text-transform:uppercase;letter-spacing:.1em;color:var(--blood);font-size:.86rem}
+.warstatus{text-align:center;font-family:'JetBrains Mono';font-size:.62rem;letter-spacing:.08em;color:var(--gold);margin-top:16px;text-transform:uppercase}
+
+/* Battles */
+.battle{background:var(--panel);border:1px solid var(--line2);border-radius:5px;padding:16px 18px;margin-bottom:12px}
+.battle .bh{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.battle .bl{font-family:'Oswald';text-transform:uppercase;letter-spacing:.08em;font-size:.92rem;color:var(--gold)}
+.battle .br{font-family:'JetBrains Mono';font-size:.6rem;color:var(--dim)}
+.battle .bn{font-size:.94rem;line-height:1.55;margin:0}
+.battle .bloss{font-family:'JetBrains Mono';font-size:.6rem;color:var(--dim);margin-top:8px}
+
+/* Chronicle */
+.prov{display:grid;grid-template-columns:120px 1fr 60px;gap:14px;padding:11px 4px;border-bottom:1px solid var(--line2);align-items:start}
+.provtag{font-family:'Oswald';text-transform:uppercase;letter-spacing:.06em;font-size:.6rem;padding:3px 8px;border-radius:3px;text-align:center;
+  border:1px solid var(--line);color:var(--dim);height:fit-content}
+.prov .pd{font-size:.92rem}
+.prov .pp{font-family:'JetBrains Mono';font-size:.56rem;color:var(--dim);margin-top:4px;text-transform:uppercase;letter-spacing:.05em}
+.prov .pdelta{font-family:'JetBrains Mono';font-size:.82rem;text-align:right}
+
+/* Whispers */
+.wstats{display:flex;flex-wrap:wrap;gap:0;margin-bottom:8px}
+.wstat{padding:6px 20px;border-right:1px solid var(--line2);text-align:center}
+.wstat:last-child{border-right:none}
+.wstat .v{font-family:'Oswald';font-weight:600;font-size:1.3rem;color:var(--gold);display:block}
+.wstat .k{font-family:'JetBrains Mono';font-size:.54rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.wcard{background:var(--panel);border:1px solid var(--line2);border-top:3px solid var(--dim);border-radius:5px;padding:15px 17px;display:flex;flex-direction:column}
+.wcard .wtags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px}
+.wtag{font-family:'Oswald';text-transform:uppercase;letter-spacing:.08em;font-size:.56rem;padding:2px 7px;border-radius:3px}
+.wcard .wh{font-family:'Oswald';text-transform:uppercase;letter-spacing:.06em;font-size:.74rem;margin-bottom:8px}
+.wcard .wh .arr{color:var(--dim);margin:0 5px}
+.wcard .wscene{font-style:italic;color:var(--dim);font-size:.86rem;margin-bottom:12px}
+.wcard .wrumor{position:relative;font-size:1rem;line-height:1.5;padding-left:16px;border-left:2px solid var(--gold);margin-top:auto}
+.wcard .wrumor::before{content:"\201C";position:absolute;left:-2px;top:-10px;font-size:1.8rem;color:var(--gold);opacity:.4;font-family:Georgia,serif}
+
+/* Empty state — new. The skill makes sections conditional; a mockup must show the seam. */
+.empty{border:1px dashed var(--line);border-radius:6px;padding:26px;text-align:center;color:var(--dim);font-style:italic;font-size:.92rem}
+
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+@media(max-width:640px){
+  .mrow{grid-template-columns:1fr;gap:6px}
+  .impwrap{text-align:left}
+  .relrow{grid-template-columns:1fr 1fr;grid-template-areas:"fa fb" "track track" "sc sc";gap:8px}
+  .relrow .fa{grid-area:fa}.relrow .fb{grid-area:fb}.relrow .track{grid-area:track}.relrow .sc{grid-area:sc;text-align:left}
+  .prov{grid-template-columns:1fr}
+  .stat,.wstat{padding:6px 14px}
+  .lbox .lnav{width:38px;height:52px}
+}

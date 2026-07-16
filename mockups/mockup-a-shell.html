@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup A — App Shell — The Adventures of Jules</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tome.css">
+<style>
+/* ── Shell A: sidebar + routed views. This is the only part that differs from Mockup B. ── */
+:root{ --side:264px; }
+
+.app{display:grid;grid-template-columns:var(--side) 1fr;min-height:100vh}
+
+/* Sidebar */
+.side{border-right:1px solid var(--line);background:rgba(20,22,26,.6);position:sticky;top:0;height:100vh;
+  overflow-y:auto;padding:22px 0 30px;display:flex;flex-direction:column}
+.side .brand{padding:0 20px 18px;border-bottom:1px solid var(--line2);margin-bottom:14px}
+.side .brand .bk{font-style:italic;color:var(--dim);font-size:.8rem}
+.side .brand .bn{font-family:'Oswald';text-transform:uppercase;letter-spacing:.06em;font-weight:700;font-size:1.7rem;
+  line-height:1;color:var(--text);margin-top:2px}
+.side .brand .bs{font-family:'JetBrains Mono';font-size:.55rem;color:var(--dim);letter-spacing:.1em;margin-top:7px}
+.grp{font-family:'JetBrains Mono';font-size:.56rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);
+  padding:14px 20px 7px}
+.side nav{display:flex;flex-direction:column}
+.nv{display:flex;align-items:center;gap:11px;padding:9px 20px;cursor:pointer;border:none;background:none;
+  border-left:2px solid transparent;text-align:left;width:100%;transition:.15s}
+.nv .nl{font-family:'Oswald';text-transform:uppercase;letter-spacing:.09em;font-size:.8rem;color:var(--dim);flex:1;transition:.15s}
+.nv .nc{font-family:'JetBrains Mono';font-size:.58rem;color:var(--dim);opacity:.65}
+.nv:hover .nl{color:var(--text)}
+.nv.on{border-left-color:var(--gold);background:linear-gradient(90deg,rgba(201,164,92,.1),transparent)}
+.nv.on .nl{color:var(--gold)}
+.nv.on .nc{color:var(--gold);opacity:.85}
+.nv:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.side .sfoot{margin-top:auto;padding:16px 20px 0;border-top:1px solid var(--line2);
+  font-family:'JetBrains Mono';font-size:.54rem;color:var(--dim);line-height:1.7}
+.side .sfoot a{color:var(--dim)}
+
+/* Main */
+.main{min-width:0;padding:0 0 80px}
+.vhead{border-bottom:1px solid var(--line);padding:34px 40px 22px;position:sticky;top:0;z-index:20;
+  background:rgba(20,22,26,.94);backdrop-filter:blur(8px)}
+.vhead .vk{font-family:'JetBrains Mono';font-size:.56rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.vhead h2{font-family:'Oswald';text-transform:uppercase;letter-spacing:.12em;font-weight:500;
+  font-size:clamp(1.2rem,2.4vw,1.75rem);margin:7px 0 0;color:var(--text)}
+.vhead .vc{color:var(--dim);font-style:italic;font-size:.94rem;margin:9px 0 0;max-width:78ch}
+.view{padding:26px 40px 0;max-width:1180px}
+.toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+
+/* Overview masthead. The original opened on a monumental title card; a routed shell would
+   otherwise lose it to a 1.7rem sidebar label. Overview is the landing view, so it carries
+   the card — the identity survives without costing every other view a screenful. */
+.ovmast{text-align:center;padding:8px 12px 30px;border-bottom:1px solid var(--line);margin-bottom:26px}
+.ovmast .kicker{margin:0 0 2px}
+.ovmast .name{font-size:clamp(2.6rem,7.5vw,5.2rem)}
+.ovmast .subtitle{margin-top:14px}
+
+/* Overview */
+.ovstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:0;
+  border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-bottom:28px}
+.ovstat{padding:20px 14px;text-align:center;border-right:1px solid var(--line2)}
+.ovstat:last-child{border-right:none}
+.ovstat .v{font-family:'Oswald';font-weight:600;font-size:2rem;color:var(--gold);display:block;line-height:1}
+.ovstat .k{font-family:'JetBrains Mono';font-size:.55rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-top:6px}
+.ovgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px}
+.card{background:var(--panel);border:1px solid var(--line2);border-radius:6px;padding:20px 22px}
+.card h3{font-family:'Oswald';text-transform:uppercase;letter-spacing:.14em;font-size:.78rem;color:var(--gold);margin:0 0 14px;
+  display:flex;justify-content:space-between;align-items:center}
+.card h3 .go{font-family:'JetBrains Mono';font-size:.56rem;color:var(--dim);cursor:pointer;background:none;border:none;letter-spacing:.1em}
+.card h3 .go:hover{color:var(--gold)}
+.mini{display:flex;align-items:flex-end;gap:3px;height:92px}
+.mini .mb{flex:1;background:var(--line);border-radius:1px 1px 0 0;cursor:pointer;min-height:2px;transition:.15s;position:relative}
+.mini .mb:hover{filter:brightness(1.5)}
+.arow{display:flex;align-items:center;gap:10px;padding:6px 0}
+.arow .ad{width:9px;height:9px;border-radius:50%;flex:none}
+.arow .an{font-family:'Oswald';text-transform:uppercase;letter-spacing:.05em;font-size:.78rem;flex:1}
+.arow .ab{height:4px;background:var(--line);border-radius:2px;width:96px}
+.arow .ab i{display:block;height:100%;background:var(--gold);border-radius:2px}
+.arow .ac{font-family:'JetBrains Mono';font-size:.6rem;color:var(--dim);width:26px;text-align:right}
+
+/* Paging */
+.pager{display:flex;justify-content:center;align-items:center;gap:16px;margin:26px 0 0;padding-top:20px;border-top:1px solid var(--line2)}
+.pager button{font-family:'Oswald';text-transform:uppercase;letter-spacing:.1em;font-size:.7rem;background:var(--panel);
+  border:1px solid var(--line);color:var(--text);padding:8px 18px;border-radius:4px;cursor:pointer}
+.pager button:disabled{opacity:.3;cursor:default}
+.pager .pi{font-family:'JetBrains Mono';font-size:.62rem;color:var(--dim)}
+
+/* Actor picker — reaches all 80 actors, unlike the original's top-5 chips */
+.apick{position:relative}
+.apick summary{list-style:none;cursor:pointer;font-family:'Oswald';text-transform:uppercase;letter-spacing:.08em;
+  font-size:.72rem;color:var(--dim);background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:6px 14px}
+.apick summary::-webkit-details-marker{display:none}
+.apick[open] summary{color:var(--gold);border-color:var(--gold)}
+.apick .apop{position:absolute;z-index:30;top:calc(100% + 6px);left:0;width:270px;max-height:320px;overflow-y:auto;
+  background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:10px;box-shadow:0 14px 40px rgba(0,0,0,.6)}
+.apick .apop input{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:4px;color:var(--text);
+  padding:7px 9px;font-family:'Crimson Pro',serif;font-size:.86rem;outline:none;margin-bottom:8px}
+.apick .apop input:focus{border-color:var(--gold)}
+.apick .ai{display:flex;align-items:center;gap:8px;padding:6px 7px;cursor:pointer;border-radius:4px;font-size:.85rem}
+.apick .ai:hover{background:rgba(232,228,218,.06)}
+.apick .ai.on{color:var(--gold)}
+.apick .ai .ac{font-family:'JetBrains Mono';font-size:.58rem;color:var(--dim);margin-left:auto}
+
+/* Mobile */
+.mbar{display:none;position:sticky;top:0;z-index:40;align-items:center;gap:12px;padding:10px 16px;
+  border-bottom:1px solid var(--line);background:linear-gradient(90deg,rgba(201,164,92,.14),rgba(26,29,35,.97) 55%);
+  backdrop-filter:blur(8px)}
+.mbar .mc{font-family:'Oswald';text-transform:uppercase;letter-spacing:.12em;font-size:.8rem;flex:1}
+.hamb{background:none;border:1px solid var(--line);border-radius:4px;color:var(--text);width:34px;height:30px;cursor:pointer;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;padding:0}
+.hamb span{display:block;width:16px;height:2px;background:var(--text)}
+@media(max-width:900px){
+  .app{grid-template-columns:1fr}
+  .side{position:fixed;inset:0 auto 0 0;width:min(300px,86vw);z-index:60;transform:translateX(-100%);
+    transition:transform .22s;background:var(--bg)}
+  .side.open{transform:none}
+  .mbar{display:flex}
+  .vhead{padding:22px 18px 16px;position:static}
+  .view{padding:20px 18px 0}
+  .scrim{position:fixed;inset:0;background:rgba(10,11,14,.7);z-index:50;display:none}
+  .scrim.on{display:block}
+}
+@media (prefers-reduced-motion: reduce){.side{transition:none}}
+</style>
+</head>
+<body>
+
+<!-- Pick the payload before anything else parses. ?data=minimal|nulldays swaps in a
+     fixture; default is the real Jules data. document.write is deliberate: it is
+     synchronous during parse, so tome.js can rely on the globals existing. -->
+<script>
+(function(){
+  var q = new URLSearchParams(location.search).get('data');
+  var file = (q === 'minimal' || q === 'nulldays') ? 'fixtures/' + q + '.js' : 'jules-data.js';
+  document.write('<script src="' + file + '"><\/script>');
+})();
+</script>
+<script src="tome.js"></script>
+
+<div class="mbar">
+  <span class="mc" id="mCur">Overview</span>
+  <button class="hamb" id="hamb" aria-label="Open navigation"><span></span><span></span><span></span></button>
+</div>
+<div class="scrim" id="scrim"></div>
+
+<div class="app">
+  <aside class="side" id="side">
+    <div class="brand">
+      <div class="bk">The Adventures of</div>
+      <div class="bn" id="brandName">—</div>
+      <div class="bs" id="brandSub"></div>
+    </div>
+    <nav id="nav"></nav>
+    <div class="sfoot" id="sfoot"></div>
+  </aside>
+
+  <main class="main">
+    <div class="vhead">
+      <div class="vk" id="vKick"></div>
+      <h2 id="vTitle"></h2>
+      <p class="vc" id="vCap"></p>
+    </div>
+    <div class="view" id="view"></div>
+  </main>
+</div>
+
+<script>
+"use strict";
+
+/* ── Routes. `when` gates a view on the data actually having something to show, which is
+      how the skill already treats war/diary/gossip. A save without them shows fewer
+      sidebar entries — no empty panels. ── */
+const ROUTES = [
+  { id:'overview',  group:'',            label:'Overview',      kick:'The Adventures of ' + (SN.player||''), title:'Overview',
+    cap:'Everything at a glance. Each panel opens the section behind it.' },
+
+  { id:'timeline',  group:'SkyrimNet',   label:'Timeline',      kick:'A SkyrimNet Field Journal',
+    title:()=>`${numWord(prep.days.length)} Days`,
+    cap:'One bar per in-game day, segmented by event category and scaled to that day’s event count.',
+    count:()=>prep.days.length },
+  { id:'constel',   group:'SkyrimNet',   label:'Constellation', kick:'A SkyrimNet Field Journal', title:'Constellation of Memory',
+    cap:'Every memory as a star, positioned by its embedding. Drag one and its nearest neighbours follow.',
+    count:()=>(SN.memories||[]).length, when:()=>(SN.memories||[]).length>0 },
+  { id:'memories',  group:'SkyrimNet',   label:'Memories',      kick:'A SkyrimNet Field Journal', title:'The Memories We Made',
+    cap:'Search the full text, filter by type or mind, and sort chronologically or by weight.',
+    count:()=>(SN.memories||[]).length, when:()=>(SN.memories||[]).length>0 },
+  { id:'kills',     group:'SkyrimNet',   label:'Blood Ledger',  kick:'A SkyrimNet Field Journal', title:'Blood Leaderboard',
+    cap:'Every killer ranked by total, their bar segmented by what they killed.',
+    count:()=>(SN.leaderboard||[]).length, when:()=>(SN.leaderboard||[]).length>0 },
+  { id:'diary',     group:'SkyrimNet',   label:'Diary',         kick:'A SkyrimNet Field Journal', title:'The Diary',
+    cap:'Long-form entries, in the character’s own hand.',
+    count:()=>(SN.diary||[]).length, when:()=>prep.hasDiary },
+  { id:'captures',  group:'SkyrimNet',   label:'Captures',      kick:'A SkyrimNet Field Journal', title:'OmniSight Field Notes',
+    cap:'A portrait of the land, then every capture. Click any image to open it full-size.',
+    count:()=>(SN.screenshots||[]).length, when:()=>prep.hasCaptures },
+  { id:'feature',   group:'SkyrimNet',   label:()=>SN.feature.name||'Feature', kick:()=>SN.feature.eyebrow||'', title:()=>SN.feature.title||'',
+    cap:'', when:()=>prep.hasFeature },
+
+  { id:'factions',  group:'IntelEngine', label:'Great Powers',  kick:'An IntelEngine Dispatch', title:'The Great Powers',
+    cap:'Standings from −100 (open war) to +100 (alliance). Hover a name for its leaders and seat.',
+    count:()=>(IE.relations||[]).length, when:()=>(IE.relations||[]).length>0 },
+  { id:'war',       group:'IntelEngine', label:'The War',       kick:'An IntelEngine Dispatch', title:'The War',
+    cap:'', count:()=>(IE.war||[]).length, when:()=>prep.hasWar },
+  { id:'battles',   group:'IntelEngine', label:'Battles',       kick:'An IntelEngine Dispatch', title:'Battles',
+    cap:'', count:()=>(IE.battles||[]).length, when:()=>prep.hasWar && (IE.battles||[]).length>0 },
+  { id:'chronicle', group:'IntelEngine', label:'Provocations',  kick:'An IntelEngine Dispatch', title:'Chronicle of Provocations',
+    cap:'Each incident nudges a relationship by the signed amount at right.',
+    count:()=>(IE.events||[]).length, when:()=>(IE.events||[]).length>0 },
+  { id:'whispers',  group:'IntelEngine', label:'Whispers',      kick:'An IntelEngine Dispatch', title:'Whispers Beyond the Road',
+    cap:'Off-screen rumours reconstructed from the model’s saved outputs.',
+    count:()=>GOSSIP.length, when:()=>prep.hasGossip },
+];
+const val = v => typeof v === 'function' ? v() : v;
+const live = () => ROUTES.filter(r => !r.when || r.when());
+
+const lightbox = makeLightbox();
+const view = document.getElementById('view');
+
+/* ── Sidebar ── */
+function renderNav(){
+  const nav = document.getElementById('nav');
+  let html = '', lastGroup = null;
+  for(const r of live()){
+    if(r.group !== lastGroup){ if(r.group) html += `<div class="grp">${esc(r.group)}</div>`; lastGroup = r.group; }
+    const c = r.count ? val(r.count) : '';
+    html += `<button class="nv" data-r="${r.id}"><span class="nl">${esc(val(r.label))}</span>${c!==''?`<span class="nc">${c}</span>`:''}</button>`;
+  }
+  nav.innerHTML = html;
+  nav.querySelectorAll('.nv').forEach(b => b.addEventListener('click', () => { location.hash = '#/' + b.dataset.r; closeSide(); }));
+}
+function markNav(id){
+  document.querySelectorAll('.nv').forEach(b => b.classList.toggle('on', b.dataset.r === id));
+}
+
+/* ── Views ── */
+const VIEWS = {};
+
+VIEWS.overview = () => {
+  const s = SN.stats || {};
+  const tiles = [
+    ['days','Days'],['events','Events'],['memories','Memories'],['minds','Minds'],
+    ['captures','Captures'],['kills','Kills'],['play_hours','Hours'],['total_spend','Spend']
+  ].filter(([k]) => s[k] != null && s[k] !== '')
+   .map(([k,l]) => `<div class="ovstat"><span class="v">${esc(s[k])}</span><span class="k">${l}</span></div>`).join('');
+
+  const bars = prep.days.map(d => {
+    const e = prep.evByDay[d];
+    const h = Math.max(2, Math.round(e.total / prep.maxEvents * 92));
+    const segs = CATORDER.filter(c=>e.cats[c]).map(c =>
+      `<i style="display:block;height:${(e.cats[c]/e.total*100).toFixed(1)}%;background:${CAT[c].color}"></i>`).join('');
+    return `<div class="mb" style="height:${h}px;display:flex;flex-direction:column-reverse" title="${esc(d)} — ${e.total} events">${segs}</div>`;
+  }).join('');
+
+  const topActors = (SN.actors||[]).slice(0,7);
+  const amax = topActors.length ? topActors[0].count : 1;
+  const actors = topActors.map(a => `<div class="arow">
+      <span class="ad" style="background:${colorFor(a.name)}"></span>
+      <span class="an">${esc(a.name)}</span>
+      <span class="ab"><i style="width:${Math.round(a.count/amax*100)}%;background:${colorFor(a.name)}"></i></span>
+      <span class="ac">${a.count}</span></div>`).join('');
+
+  const heaviest = (SN.memories||[]).slice().sort((a,b)=>(b.imp||0)-(a.imp||0)).slice(0,3)
+    .map(m => `<div style="padding:8px 0;border-bottom:1px solid var(--line2)">
+        <div style="font-size:.9rem">${esc(m.content.slice(0,150))}${m.content.length>150?'…':''}</div>
+        <div class="mono" style="font-size:.56rem;color:var(--dim);margin-top:5px">
+          ${esc(m.actor)} · imp ${m.imp!=null?m.imp.toFixed(2):'?'} · ${esc(m.day||'undated')}</div></div>`).join('');
+
+  const cards = [];
+  cards.push(`<div class="card"><h3>Activity by day <button class="go" data-go="timeline">Open →</button></h3>
+    <div class="mini">${bars || '<span class="cnote">no days</span>'}</div>
+    <div class="mono" style="font-size:.54rem;color:var(--dim);margin-top:9px;display:flex;justify-content:space-between">
+      <span>${esc(prep.days[0]||'')}</span><span>${esc(prep.days[prep.days.length-1]||'')}</span></div></div>`);
+  cards.push(`<div class="card"><h3>Busiest minds <button class="go" data-go="memories">Open →</button></h3>${actors||'<span class="cnote">none</span>'}</div>`);
+  if(heaviest) cards.push(`<div class="card"><h3>Heaviest memories <button class="go" data-go="memories">Open →</button></h3>${heaviest}</div>`);
+  if(prep.hasCaptures){
+    const c = (SN.screenshots||[]).slice(0,4).map((s,i)=>
+      `<img loading="lazy" src="../omnisight-images/${esc(s.img)}" alt="${esc(s.name)}" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:3px;background:#0e1013">`).join('');
+    cards.push(`<div class="card"><h3>Captures <button class="go" data-go="captures">Open →</button></h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">${c}</div></div>`);
+  }
+  if(prep.hasWar){
+    const w = IE.war[0];
+    cards.push(`<div class="card"><h3>The war <button class="go" data-go="war">Open →</button></h3>
+      <div style="font-family:'Oswald';text-transform:uppercase;letter-spacing:.06em;font-size:.9rem">
+        <span style="color:${cFac(w.a)}">${esc(w.a)}</span> <span class="vs">vs</span> <span style="color:${cFac(w.b)}">${esc(w.b)}</span></div>
+      <div class="mono" style="font-size:.58rem;color:var(--dim);margin-top:7px">
+        ${w.battles} battle${w.battles===1?'':'s'} · ${w.ongoing?'ongoing':'victor: '+esc(w.victor)}</div></div>`);
+  }
+
+  setTimeout(()=>{
+    view.querySelectorAll('.mini .mb').forEach(b => b.addEventListener('click', ()=> location.hash = '#/timeline'));
+  },0);
+
+  const mast = `<div class="ovmast">
+      <div class="kicker">The Adventures of</div>
+      <h1 class="name">${esc(SN.player||'')}</h1>
+      <div class="subtitle">${esc((s.subtitle)||'')}</div></div>`;
+
+  return `${mast}<div class="ovstats">${tiles}</div>${noticesHtml()}<div class="ovgrid">${cards.join('')}</div>`;
+};
+
+VIEWS.timeline = () => {
+  const bars = prep.days.map(d => {
+    const e = prep.evByDay[d];
+    const h = Math.max(4, Math.round(e.total / prep.maxEvents * 210));
+    const segs = CATORDER.filter(c=>e.cats[c]).map(c =>
+      `<div class="tlseg" style="height:${(e.cats[c]/e.total*100).toFixed(1)}%;background:${CAT[c].color}" title="${CAT[c].label}: ${e.cats[c]}"></div>`).join('');
+    const short = d.replace(/ of /,'\n');
+    return `<div class="tlday"><span class="tldt">${e.total}</span>
+      <div class="tlbar" style="height:${h}px">${segs}</div>
+      <span class="tldl">${esc(short)}</span></div>`;
+  }).join('');
+  const legend = CATORDER.map(c=>`<span class="lg"><i style="background:${CAT[c].color}"></i>${CAT[c].label}</span>`).join('');
+  return `<div class="tl">${bars}</div><div class="legend">${legend}</div>`;
+};
+
+VIEWS.constel = () => {
+  /* Actor chips dim non-matching stars. In the original these had to live OUTSIDE the
+     collapsible body ("keep-visible") because they also drove the memory list further down
+     the same scroll. Here the two are separate views, so the coupling — and the hack — is
+     gone: this filter owns the constellation, and Memories owns its own. */
+  const chips = `<button class="chip on" data-a="__all">All minds</button>`
+    + topActorNames.map(n => `<button class="chip" data-a="${esc(n)}">
+        <span style="width:7px;height:7px;border-radius:50%;background:${colorFor(n)};display:inline-block;margin-right:5px"></span>${esc(n)}</button>`).join('')
+    + `<button class="chip" data-a="__others">Everyone else</button>`;
+  setTimeout(()=>{
+    const c = makeConstellation(document.getElementById('constel'), document.getElementById('ctip'));
+    const note = document.getElementById('projNote');
+    note.textContent = c.projNote();
+    document.getElementById('projToggle').addEventListener('click', e => {
+      const b = e.target.closest('button'); if(!b) return;
+      c.setProj(b.dataset.proj);
+      document.querySelectorAll('#projToggle button').forEach(x => x.classList.toggle('on', x.dataset.proj===c.proj));
+      note.textContent = c.projNote();
+    });
+    document.getElementById('cChips').addEventListener('click', e => {
+      const b = e.target.closest('.chip'); if(!b) return;
+      document.querySelectorAll('#cChips .chip').forEach(x => x.classList.toggle('on', x===b));
+      c.setActor(b.dataset.a);
+    });
+  },0);
+  return `<div class="togline">
+      <span class="toggle" id="projToggle">
+        <button data-proj="umap" class="on">UMAP</button><button data-proj="pca">PCA</button></span>
+      <span class="cnote" id="projNote"></span></div>
+    <div class="chips" id="cChips">${chips}</div>
+    <div class="constel" id="constel"><div class="ctip" id="ctip"></div></div>
+    <p class="seccap" style="margin-top:14px">Dot size scales with importance; colour marks the mind that formed it.
+      The five busiest minds get their own colour, everyone else is grey. Drag a star and its nearest
+      neighbours follow. On a narrow screen, read the same memories as a list under
+      <button class="go" data-go="memories" style="background:none;border:none;color:var(--gold);cursor:pointer;font:inherit;font-style:italic;padding:0">Memories</button>.</p>`;
+};
+
+/* Memories: search + type chips + all-actor picker + sort + paging.
+   The original renders all 255 rows at once with no text search and a top-5 actor filter. */
+const MEM = { q:'', type:'__all', actor:'__all', sort:'chrono', page:0, per:25 };
+VIEWS.memories = () => {
+  const types = {};
+  (SN.memories||[]).forEach(m => types[m.type] = (types[m.type]||0)+1);
+  const typeChips = `<button class="chip${MEM.type==='__all'?' on':''}" data-t="__all">All types<span class="ct">${(SN.memories||[]).length}</span></button>`
+    + Object.keys(types).sort((a,b)=>types[b]-types[a]).map(t =>
+        `<button class="chip${MEM.type===t?' on':''}" data-t="${esc(t)}">${esc(t)}<span class="ct">${types[t]}</span></button>`).join('');
+
+  setTimeout(bindMem, 0);
+  return `<div class="toolbar">
+      <span class="search"><span class="si">⌕</span>
+        <input id="mq" type="search" placeholder="Search all ${(SN.memories||[]).length} memories…" value="${esc(MEM.q)}">
+        <button class="sx" id="mqx" aria-label="Clear search" style="${MEM.q?'':'visibility:hidden'}">&times;</button></span>
+      <details class="apick" id="apick"><summary id="asum">Mind: All</summary><div class="apop" id="apop"></div></details>
+      <span class="toggle" id="msort">
+        <button data-s="chrono" class="${MEM.sort==='chrono'?'on':''}">Chronological</button>
+        <button data-s="imp" class="${MEM.sort==='imp'?'on':''}">By weight</button></span>
+    </div>
+    <div class="chips" id="mtypes">${typeChips}</div>
+    <div id="mout"></div>`;
+};
+function memMatches(m){
+  if(MEM.type !== '__all' && m.type !== MEM.type) return false;
+  if(MEM.actor === '__others'){ if(topActorNames.includes(m.actor)) return false; }
+  else if(MEM.actor !== '__all' && m.actor !== MEM.actor) return false;
+  if(MEM.q){
+    const q = MEM.q.toLowerCase();
+    if(!((m.content||'').toLowerCase().includes(q) || (m.actor||'').toLowerCase().includes(q)
+      || (m.location||'').toLowerCase().includes(q))) return false;
+  }
+  return true;
+}
+function renderMem(){
+  const all = (SN.memories||[]).filter(memMatches);
+  // Undated rows are grouped last rather than dropped, and never mixed into a dated day.
+  const dated = all.filter(isDated), undated = all.filter(m => !isDated(m));
+  let html = '';
+
+  if(MEM.sort === 'imp'){
+    const rows = all.slice().sort((a,b)=>(b.imp||0)-(a.imp||0));
+    const page = rows.slice(MEM.page*MEM.per, (MEM.page+1)*MEM.per);
+    html += page.map(m => memRow(m, MEM.q)).join('');
+    html += pager(rows.length);
+  } else {
+    // chronological: day groups in rail order, gt-sorted within each (quarantined rows excluded)
+    const flat = [];
+    for(const d of prep.days){
+      const g = dated.filter(m => m.day === d);
+      if(g.length) flat.push({ day:d, rows:g });
+    }
+    for(const m of prep.orphanMems.filter(memMatches)) flat.push({ day:m.day, rows:[m] });
+    if(undated.length) flat.push({ day:null, rows:undated });
+
+    // page over rows, not groups, so a 50-memory day doesn't blow past the page size
+    const seq = [];
+    flat.forEach(g => g.rows.forEach(r => seq.push({ g:g.day, m:r })));
+    const page = seq.slice(MEM.page*MEM.per, (MEM.page+1)*MEM.per);
+    let cur = undefined;
+    for(const it of page){
+      if(it.g !== cur){
+        cur = it.g;
+        const n = seq.filter(x => x.g === cur).length;
+        html += `<div class="dayhd" style="margin-top:16px">
+          <span class="dn" style="${cur===null?'color:var(--amber)':''}">${cur===null?'Undated':esc(cur)}</span>
+          <span class="dc">${n} memor${n===1?'y':'ies'}</span></div>`;
+      }
+      html += memRow(it.m, MEM.q);
+    }
+    html += pager(seq.length);
+  }
+
+  const total = (SN.memories||[]).length;
+  const head = `<div class="shown">${all.length} of ${total} memories shown${MEM.q?` · matching “${esc(MEM.q)}”`:''}</div>`;
+  const note = (undated.length && MEM.sort==='chrono')
+    ? `<div class="quarantine"><b>${undated.length} undated</b>These carry no in-game day, so they cannot be placed on the timeline. They are grouped at the end rather than dropped or guessed into a day. See Overview for why their timestamps are unusable.</div>` : '';
+  document.getElementById('mout').innerHTML = head + note + (all.length ? html : `<div class="empty">No memories match.</div>`);
+  bindPager();
+}
+function pager(n){
+  const pages = Math.max(1, Math.ceil(n/MEM.per));
+  if(MEM.page >= pages) MEM.page = pages-1;
+  if(pages <= 1) return '';
+  return `<div class="pager"><button id="pp" ${MEM.page===0?'disabled':''}>← Prev</button>
+    <span class="pi">${MEM.page+1} / ${pages}</span>
+    <button id="pn" ${MEM.page>=pages-1?'disabled':''}>Next →</button></div>`;
+}
+function bindPager(){
+  const p = document.getElementById('pp'), n = document.getElementById('pn');
+  if(p) p.addEventListener('click', ()=>{ MEM.page--; renderMem(); window.scrollTo({top:0,behavior:RM?'auto':'smooth'}); });
+  if(n) n.addEventListener('click', ()=>{ MEM.page++; renderMem(); window.scrollTo({top:0,behavior:RM?'auto':'smooth'}); });
+}
+function bindMem(){
+  const q = document.getElementById('mq'), qx = document.getElementById('mqx');
+  q.addEventListener('input', ()=>{ MEM.q = q.value.trim(); MEM.page=0; qx.style.visibility = MEM.q?'visible':'hidden'; renderMem(); });
+  qx.addEventListener('click', ()=>{ q.value=''; MEM.q=''; MEM.page=0; qx.style.visibility='hidden'; renderMem(); q.focus(); });
+  document.getElementById('mtypes').addEventListener('click', e=>{
+    const b = e.target.closest('.chip'); if(!b) return;
+    MEM.type = b.dataset.t; MEM.page = 0;
+    document.querySelectorAll('#mtypes .chip').forEach(x=>x.classList.toggle('on', x===b));
+    renderMem();
+  });
+  document.getElementById('msort').addEventListener('click', e=>{
+    const b = e.target.closest('button'); if(!b) return;
+    MEM.sort = b.dataset.s; MEM.page = 0;
+    document.querySelectorAll('#msort button').forEach(x=>x.classList.toggle('on', x===b));
+    renderMem();
+  });
+  renderActorPicker();
+  renderMem();
+}
+/* All 80 actors, searchable — the original exposes only the top 5 as chips.
+ *
+ * The filter input is built ONCE and never re-rendered; only the list below it redraws.
+ * Rebuilding the input on each keystroke re-created the element with value="…", which put
+ * the caret back at index 0 — so typing "nazeem" produced "meezan" and matched nothing. */
+function renderActorPicker(){
+  const pop = document.getElementById('apop');
+  pop.innerHTML = `<input id="af" type="search" placeholder="Filter ${(SN.actors||[]).length} minds…" autocomplete="off">`
+    + `<div id="alist"></div>`;
+  const list = document.getElementById('alist');
+
+  const draw = () => {
+    const f = document.getElementById('af').value.trim().toLowerCase();
+    const hits = (SN.actors||[]).filter(a => !f || a.name.toLowerCase().includes(f));
+    list.innerHTML =
+      (f ? '' : `<div class="ai${MEM.actor==='__all'?' on':''}" data-a="__all">All minds<span class="ac">${(SN.memories||[]).length}</span></div>`
+         + `<div class="ai${MEM.actor==='__others'?' on':''}" data-a="__others">Everyone else</div>`)
+      + hits.map(a => `<div class="ai${MEM.actor===a.name?' on':''}" data-a="${esc(a.name)}">
+          <span style="width:8px;height:8px;border-radius:50%;background:${colorFor(a.name)};display:inline-block"></span>
+          ${esc(a.name)}<span class="ac">${a.count}</span></div>`).join('')
+      + (hits.length ? '' : '<div class="cnote" style="padding:8px">No mind matches that.</div>');
+  };
+
+  document.getElementById('af').addEventListener('input', draw);
+  list.addEventListener('click', e => {
+    const el = e.target.closest('.ai'); if(!el) return;
+    MEM.actor = el.dataset.a; MEM.page = 0;
+    const lbl = MEM.actor==='__all' ? 'All' : MEM.actor==='__others' ? 'Everyone else' : MEM.actor;
+    document.getElementById('asum').textContent = 'Mind: ' + lbl;
+    document.getElementById('apick').open = false;
+    renderMem();
+  });
+  draw();
+}
+
+VIEWS.kills = () => {
+  const legend = Object.keys(KCAT).map(k=>`<span class="lg"><i style="background:${KCAT[k]}"></i>${k}</span>`).join('');
+  const rows = (SN.leaderboard||[]).map((e,i)=>{
+    const segs = Object.keys(e.cats||{}).map(c=>`<i style="width:${(e.cats[c]/e.total*100).toFixed(1)}%;background:${KCAT[c]||'var(--dim)'}" title="${esc(c)}: ${e.cats[c]}"></i>`).join('');
+    const chips = (e.victims||[]).map(([v,n])=>`<span class="vchip">${esc(v)} ×${n}</span>`).join('');
+    return `<div class="lbrow"><div class="lbrank">${String(i+1).padStart(2,'0')}</div>
+      <div><div class="lbname" style="color:${colorFor(e.killer)}">${esc(e.killer)}</div>
+        <div class="lbtot">${e.total} kill${e.total===1?'':'s'}</div></div>
+      <div><div class="lbbar">${segs}</div><div class="vchips">${chips}</div></div></div>`;
+  }).join('');
+  return `<div class="legend">${legend}</div><div class="lb">${rows}</div>`;
+};
+
+/* Flattened: the original spends a page-flip widget with prev/next/indicator on 3 entries. */
+VIEWS.diary = () => (SN.diary||[]).map(d => `
+  <div class="page" style="max-width:720px;margin:0 auto 22px">
+    <div class="phd"><span class="pau">${esc(d.actor)}</span><span class="ppl">${esc(d.loc||'')}${d.emotion?' · '+esc(d.emotion):''}</span></div>
+    <div class="pbody">${(d.content||'').split(/\n\s*\n/).map(p=>`<p>${emph(p)}</p>`).join('')}</div>
+  </div>`).join('');
+
+const CAP = { shown: 24 };
+VIEWS.captures = () => {
+  const s = SN.omni_summary || {};
+  const portrait = (s.paragraphs && s.paragraphs.length) ? `<div class="portrait">
+      <h3>${esc(s.title||'A Portrait of the Land')}</h3>
+      ${s.paragraphs.map(p=>`<p>${emph(p)}</p>`).join('')}
+      ${s.foot?`<div class="pfoot">${esc(s.foot)}</div>`:''}</div>` : '';
+  setTimeout(bindCaps,0);
+  return portrait + `<div class="shown" id="capCount"></div><div class="ogrid" id="ogrid"></div><div id="capMoreWrap"></div>`;
+};
+function bindCaps(){
+  const all = SN.screenshots||[];
+  const grid = document.getElementById('ogrid');
+  const draw = () => {
+    const list = all.slice(0, CAP.shown);
+    grid.innerHTML = list.map((s,i)=>captureCard(s,i)).join('');
+    document.getElementById('capCount').textContent = `${list.length} of ${all.length} captures`;
+    document.getElementById('capMoreWrap').innerHTML = CAP.shown < all.length
+      ? `<button class="showmore" id="capMore">Show all ${all.length} captures</button>` : '';
+    const b = document.getElementById('capMore');
+    if(b) b.addEventListener('click', ()=>{ CAP.shown = all.length; draw(); });
+  };
+  draw();
+  bindCaptures(grid, lightbox, i => ({ list: all, index: i }));
+}
+
+VIEWS.feature = () => {
+  const f = SN.feature||{};
+  const intro = f.intro || [];       // already an array in the payload — not a JSON string
+  const quotes = f.quotes || [];
+  const stats = [['count','Memories'],['kills','Kills']].filter(([k])=>f[k]!=null)
+    .map(([k,l])=>`<div class="fs"><span class="v">${esc(f[k])}</span><span class="k">${l}</span></div>`).join('');
+  const qcards = quotes.map(q=>{
+    // day/emotion/location are frequently empty on these rows; show only what exists.
+    const meta = [q.day, q.emotion, q.location].filter(Boolean).join(' · ')
+      || (q.imp!=null ? 'imp '+q.imp.toFixed(2) : '');
+    return `<div class="qcard">${meta?`<div class="qm">${esc(meta)}</div>`:''}
+      <div class="qc">${emph(q.content||'')}</div></div>`;
+  }).join('');
+  return `<div class="feat">
+    <div class="fintro">${intro.map(p=>`<p>${emph(p)}</p>`).join('')}</div>
+    ${stats?`<div class="fstats">${stats}</div>`:''}
+    <div class="qgrid">${qcards}</div></div>`;
+};
+
+VIEWS.factions = () => (IE.relations||[]).slice().sort((a,b)=>a.score-b.score).map(r=>{
+  const fa=facInfo[r.a], fb=facInfo[r.b];
+  const tA = fa?`${fa.name} — ${(fa.leaders||[]).join(', ')} · ${fa.hold}`:r.a;
+  const tB = fb?`${fb.name} — ${(fb.leaders||[]).join(', ')} · ${fb.hold}`:r.b;
+  const half = Math.abs(r.score)/100*50;
+  const seg = r.score<0 ? `<div class="seg" style="right:50%;width:${half}%;background:var(--blood)"></div>`
+            : r.score>0 ? `<div class="seg" style="left:50%;width:${half}%;background:${cFac(r.a)}"></div>` : '';
+  const sc = r.score<0?'var(--blood)':r.score>0?'var(--moss)':'var(--dim)';
+  return `<div class="relrow">
+    <div class="fa" style="color:${cFac(r.a)}" title="${esc(tA)}">${esc(r.a)}</div>
+    <div class="track${r.war?' war':''}"><div class="tick"></div>${seg}</div>
+    <div class="fb" style="color:${cFac(r.b)}" title="${esc(tB)}">${esc(r.b)}${r.war?'<span class="wartag">⚔ At War</span>':''}</div>
+    <div class="sc" style="color:${sc}">${r.score>0?'+':''}${r.score}</div></div>`;
+}).join('');
+
+VIEWS.war = () => (IE.war||[]).map(w=>{
+  const intro = w.ongoing
+    ? `${w.declaration?esc(w.declaration)+' ':''}The war rages on — ${w.battles} battle${w.battles===1?'':'s'} fought, no victor yet.`
+    : `${w.declaration?esc(w.declaration)+' ':''}Concluded after ${w.battles} battle${w.battles===1?'':'s'} — <strong style="color:var(--gold)">${esc(w.victor)}</strong> emerged victorious.`;
+  return `<div class="warpanel${w.ongoing?' ongoing':''}">
+    <p class="warintro">${intro}</p>
+    <div class="versus">
+      <div class="side r"><div class="sn" style="color:${cFac(w.a)}">${esc(w.a)}</div>
+        <div class="sl">${esc((w.a_leaders||[]).join(', '))}</div>
+        ${gauge('Morale',w.a_morale,cFac(w.a))}${gauge('Strength',w.a_strength,cFac(w.a))}</div>
+      <div class="vs">Versus</div>
+      <div class="side"><div class="sn" style="color:${cFac(w.b)}">${esc(w.b)}</div>
+        <div class="sl">${esc((w.b_leaders||[]).join(', '))}</div>
+        ${gauge('Morale',w.b_morale,cFac(w.b))}${gauge('Strength',w.b_strength,cFac(w.b))}</div>
+    </div>
+    <div class="warstatus">${w.ongoing?'⚔ War Ongoing':'Victor: '+esc(w.victor)}</div></div>`;
+}).join('');
+
+VIEWS.battles = () => (IE.battles||[]).map(b=>`<div class="battle">
+  <div class="bh"><span class="bl">${esc(b.loc)}</span>
+    <span class="br">${esc(b.attacker)} → ${esc(b.defender)} · ${esc(b.result)}</span></div>
+  <p class="bn">${esc(b.narrative)}</p>
+  <div class="bloss">Losses — ${esc(b.attacker)}: ${b.att_losses} · ${esc(b.defender)}: ${b.def_losses}</div></div>`).join('');
+
+VIEWS.chronicle = () => (IE.events||[]).map(e=>{
+  const dc = e.delta<0?'var(--blood)':e.delta>0?'var(--moss)':'var(--dim)';
+  return `<div class="prov"><div class="provtag">${esc((e.type||'').replace(/_/g,' '))}</div>
+    <div><div class="pd">${esc(e.desc)}</div><div class="pp" style="color:${cFac(e.a)}">${esc(e.a)}</div></div>
+    <div class="pdelta" style="color:${dc}">${e.delta>0?'+':''}${e.delta}</div></div>`;
+}).join('');
+
+const WSP = { f:'__all' };
+VIEWS.whispers = () => {
+  const classed = GOSSIP.map(g=>({...g, tags:classifyWhisper(g.rumor+' '+g.scene)}));
+  const voices = new Set(); classed.forEach(g=>{voices.add(g.speaker);voices.add(g.listener);});
+  const counts = {player:0,political:0,personal:0}; classed.forEach(g=>g.tags.forEach(t=>counts[t]++));
+  const stats = `<div class="wstats">
+    <div class="wstat"><span class="v">${classed.length}</span><span class="k">Whispers</span></div>
+    <div class="wstat"><span class="v">${voices.size}</span><span class="k">Distinct Voices</span></div>
+    <div class="wstat"><span class="v">${counts.political}</span><span class="k">Political</span></div>
+    <div class="wstat"><span class="v">${counts.player}</span><span class="k">${esc(WTAG.player.l)}</span></div></div>`;
+  let chips = `<div class="chips" id="wChips"><button class="chip on" data-w="__all">All<span class="ct">${classed.length}</span></button>`;
+  ['player','political','personal'].forEach(k=>chips+=`<button class="chip" data-w="${k}">${esc(WTAG[k].l)}<span class="ct">${counts[k]}</span></button>`);
+  chips += `</div>`;
+  const cards = classed.map(g=>{
+    const primary = g.tags[0];
+    const tagHtml = g.tags.map(t=>`<span class="wtag" style="background:${WTAG[t].c};color:#14161a">${esc(WTAG[t].l)}</span>`).join('');
+    let scene = (g.scene||'').trim(); scene = scene.charAt(0).toUpperCase()+scene.slice(1).replace(/[.\s]+$/,'')+':';
+    return `<div class="wcard" data-tags="${g.tags.join(' ')}" style="border-top-color:${WTAG[primary].c}">
+      <div class="wtags">${tagHtml}</div>
+      <div class="wh">${esc(g.speaker)}<span class="arr">→</span><span style="color:var(--gold)">${esc(g.listener)}</span></div>
+      <div class="wscene">${esc(scene)}</div>
+      <div class="wrumor">${esc(g.rumor)}</div></div>`;
+  }).join('');
+  setTimeout(()=>{
+    document.getElementById('wChips').addEventListener('click', e=>{
+      const b = e.target.closest('.chip'); if(!b) return;
+      WSP.f = b.dataset.w;
+      document.querySelectorAll('#wChips .chip').forEach(x=>x.classList.toggle('on', x===b));
+      document.querySelectorAll('#wGrid .wcard').forEach(c =>
+        c.classList.toggle('hidden', WSP.f!=='__all' && !c.dataset.tags.split(' ').includes(WSP.f)));
+    });
+  },0);
+  return `${stats}${chips}<div class="wgrid" id="wGrid">${cards}</div>`;
+};
+
+/* ── Router ── */
+function go(){
+  const id = (location.hash.replace(/^#\//,'') || 'overview');
+  const r = live().find(x => x.id === id) || live()[0];
+  // Overview carries its own masthead, so the sticky view header would just repeat it.
+  document.querySelector('.vhead').classList.toggle('hidden', r.id === 'overview');
+  document.getElementById('vKick').textContent = val(r.kick) || '';
+  document.getElementById('vTitle').textContent = val(r.title) || '';
+  const cap = val(r.cap) || '';
+  const capEl = document.getElementById('vCap');
+  capEl.textContent = cap; capEl.style.display = cap ? '' : 'none';
+  document.getElementById('mCur').textContent = val(r.label);
+  markNav(r.id);
+  const out = VIEWS[r.id] ? VIEWS[r.id]() : '';
+  view.innerHTML = out || `<div class="empty">Nothing recorded for this section.</div>`;
+  // Any view may link onward with [data-go]; bind once here rather than per-view.
+  view.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', ()=> location.hash = '#/'+b.dataset.go));
+  window.scrollTo(0,0);
+}
+
+/* ── Boot ── */
+document.getElementById('brandName').textContent = SN.player || '—';
+document.getElementById('brandSub').textContent = (SN.stats && SN.stats.subtitle) ? SN.stats.subtitle.split('·')[0].trim() : '';
+document.getElementById('sfoot').innerHTML =
+  `Mockup A — app shell.<br>Real payload, restructured shell.<br>
+   <a href="?data=minimal">?data=minimal</a> · <a href="?data=nulldays">?data=nulldays</a>`;
+renderNav();
+addEventListener('hashchange', go);
+go();
+
+const side = document.getElementById('side'), scrim = document.getElementById('scrim');
+const closeSide = () => { side.classList.remove('open'); scrim.classList.remove('on'); };
+document.getElementById('hamb').addEventListener('click', ()=>{ side.classList.add('open'); scrim.classList.add('on'); });
+scrim.addEventListener('click', closeSide);
+addEventListener('keydown', e => { if(e.key==='Escape') closeSide(); });
+</script>
+</body>
+</html>
