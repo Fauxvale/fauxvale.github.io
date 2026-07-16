@@ -423,20 +423,33 @@ function intelView(){
   }
 
   if(prep.hasWar){
-    const panels = IE.war.map(w=>{
-      const intro = w.ongoing
-        ? `${w.declaration?esc(w.declaration)+' ':''}The war rages on — ${w.battles} battle${w.battles===1?'':'s'} fought, no victor yet.`
-        : `${w.declaration?esc(w.declaration)+' ':''}Concluded after ${w.battles} battle${w.battles===1?'':'s'} — <strong style="color:var(--gold)">${esc(w.victor)}</strong> emerged victorious.`;
-      return `<div class="warpanel${w.ongoing?' ongoing':''}"><p class="warintro">${intro}</p>
+    const panels = IE.war.slice().sort((a,b)=>(b.ongoing?1:0)-(a.ongoing?1:0)).map(w=>{
+      // The model's declaration text carries no terminal punctuation, so appending the
+      // outcome ran the sentences together ("...from Skyrim Concluded after 3 battles").
+      const decl = (w.declaration||'').trim();
+      const lead = decl ? esc(decl.replace(/[.\s]+$/,'')) + '. ' : '';
+      const outcome = w.ongoing
+        ? (w.battles
+            ? `The war rages on — ${plural(w.battles,'battle')} fought, no victor yet.`
+            : `No battles fought yet.`)
+        : (w.battles
+            ? `Concluded after ${plural(w.battles,'battle')} — <strong style="color:var(--gold)">${esc(w.victor)}</strong> emerged victorious.`
+            : `Concluded without a battle — <strong style="color:var(--gold)">${esc(w.victor)}</strong> emerged victorious.`);
+      const flag = w.ongoing ? `<span class="wflag on">⚔ Ongoing</span>`
+                             : `<span class="wflag done">Victor: ${esc(w.victor)}</span>`;
+      return `<div class="warpanel${w.ongoing?' ongoing':''}">
+        <div class="warhd">
+          <span class="wt"><span style="color:${cFac(w.a)}">${esc(w.a)}</span><span class="wsep">versus</span><span style="color:${cFac(w.b)}">${esc(w.b)}</span></span>
+          ${flag}</div>
+        <p class="warintro">${lead}${outcome}</p>
         <div class="versus">
-          <div class="side r"><div class="sn" style="color:${cFac(w.a)}">${esc(w.a)}</div>
+          <div class="belligerent r"><div class="sn" style="color:${cFac(w.a)}">${esc(w.a)}</div>
             <div class="sl">${esc((w.a_leaders||[]).join(', '))}</div>
             ${gauge('Morale',w.a_morale,cFac(w.a))}${gauge('Strength',w.a_strength,cFac(w.a))}</div>
           <div class="vs">Versus</div>
-          <div class="side"><div class="sn" style="color:${cFac(w.b)}">${esc(w.b)}</div>
+          <div class="belligerent"><div class="sn" style="color:${cFac(w.b)}">${esc(w.b)}</div>
             <div class="sl">${esc((w.b_leaders||[]).join(', '))}</div>
-            ${gauge('Morale',w.b_morale,cFac(w.b))}${gauge('Strength',w.b_strength,cFac(w.b))}</div></div>
-        <div class="warstatus">${w.ongoing?'⚔ War Ongoing':'Victor: '+esc(w.victor)}</div></div>`;
+            ${gauge('Morale',w.b_morale,cFac(w.b))}${gauge('Strength',w.b_strength,cFac(w.b))}</div></div></div>`;
     }).join('');
     html += `<div class="blk"><h3>The War<span class="hr"></span><span class="n">${IE.war.length}</span></h3>${panels}</div>`;
 

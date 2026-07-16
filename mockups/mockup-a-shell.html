@@ -201,8 +201,12 @@ const ROUTES = [
   { id:'factions',  group:'IntelEngine', label:'Great Powers',  kick:'An IntelEngine Dispatch', title:'The Great Powers',
     cap:'Standings from −100 (open war) to +100 (alliance). Hover a name for its leaders and seat.',
     count:()=>(IE.relations||[]).length, when:()=>(IE.relations||[]).length>0 },
-  { id:'war',       group:'IntelEngine', label:'The War',       kick:'An IntelEngine Dispatch', title:'The War',
-    cap:'', count:()=>(IE.war||[]).length, when:()=>prep.hasWar },
+  { id:'war',       group:'IntelEngine', label:()=>(IE.war||[]).length===1?'The War':'The Wars',
+    kick:'An IntelEngine Dispatch', title:()=>(IE.war||[]).length===1?'The War':'The Wars',
+    cap:()=>(IE.war||[]).length===1
+      ? 'The belligerents, their leaders, and the strength each still holds.'
+      : 'Each war the save records, any ongoing one first. Morale and strength are the standing at the last reading.',
+    count:()=>(IE.war||[]).length, when:()=>prep.hasWar },
   { id:'battles',   group:'IntelEngine', label:'Battles',       kick:'An IntelEngine Dispatch', title:'Battles',
     cap:'', count:()=>(IE.battles||[]).length, when:()=>prep.hasWar && (IE.battles||[]).length>0 },
   { id:'chronicle', group:'IntelEngine', label:'Provocations',  kick:'An IntelEngine Dispatch', title:'Chronicle of Provocations',
@@ -580,22 +584,40 @@ VIEWS.factions = () => (IE.relations||[]).slice().sort((a,b)=>a.score-b.score).m
     <div class="sc" style="color:${sc}">${r.score>0?'+':''}${r.score}</div></div>`;
 }).join('');
 
-VIEWS.war = () => (IE.war||[]).map(w=>{
-  const intro = w.ongoing
-    ? `${w.declaration?esc(w.declaration)+' ':''}The war rages on — ${w.battles} battle${w.battles===1?'':'s'} fought, no victor yet.`
-    : `${w.declaration?esc(w.declaration)+' ':''}Concluded after ${w.battles} battle${w.battles===1?'':'s'} — <strong style="color:var(--gold)">${esc(w.victor)}</strong> emerged victorious.`;
+/* A save can record more than one war. Show any ongoing war first — it's the live
+   situation — and let each panel name its own belligerents. */
+VIEWS.war = () => (IE.war||[]).slice()
+  .sort((a,b) => (b.ongoing?1:0) - (a.ongoing?1:0))
+  .map(w=>{
+  // The declaration comes from the model and usually has no terminal punctuation, so
+  // appending the outcome ran the two sentences together ("...from Skyrim Concluded after").
+  const decl = (w.declaration||'').trim();
+  const lead = decl ? esc(decl.replace(/[.\s]+$/,'')) + '. ' : '';
+  const outcome = w.ongoing
+    ? (w.battles
+        ? `The war rages on — ${plural(w.battles,'battle')} fought, no victor yet.`
+        : `No battles fought yet.`)
+    : (w.battles
+        ? `Concluded after ${plural(w.battles,'battle')} — <strong style="color:var(--gold)">${esc(w.victor)}</strong> emerged victorious.`
+        : `Concluded without a battle — <strong style="color:var(--gold)">${esc(w.victor)}</strong> emerged victorious.`);
+  const flag = w.ongoing
+    ? `<span class="wflag on">⚔ Ongoing</span>`
+    : `<span class="wflag done">Victor: ${esc(w.victor)}</span>`;
   return `<div class="warpanel${w.ongoing?' ongoing':''}">
-    <p class="warintro">${intro}</p>
+    <div class="warhd">
+      <span class="wt"><span style="color:${cFac(w.a)}">${esc(w.a)}</span><span class="wsep">versus</span><span style="color:${cFac(w.b)}">${esc(w.b)}</span></span>
+      ${flag}
+    </div>
+    <p class="warintro">${lead}${outcome}</p>
     <div class="versus">
-      <div class="side r"><div class="sn" style="color:${cFac(w.a)}">${esc(w.a)}</div>
+      <div class="belligerent r"><div class="sn" style="color:${cFac(w.a)}">${esc(w.a)}</div>
         <div class="sl">${esc((w.a_leaders||[]).join(', '))}</div>
         ${gauge('Morale',w.a_morale,cFac(w.a))}${gauge('Strength',w.a_strength,cFac(w.a))}</div>
       <div class="vs">Versus</div>
-      <div class="side"><div class="sn" style="color:${cFac(w.b)}">${esc(w.b)}</div>
+      <div class="belligerent"><div class="sn" style="color:${cFac(w.b)}">${esc(w.b)}</div>
         <div class="sl">${esc((w.b_leaders||[]).join(', '))}</div>
         ${gauge('Morale',w.b_morale,cFac(w.b))}${gauge('Strength',w.b_strength,cFac(w.b))}</div>
-    </div>
-    <div class="warstatus">${w.ongoing?'⚔ War Ongoing':'Victor: '+esc(w.victor)}</div></div>`;
+    </div></div>`;
 }).join('');
 
 VIEWS.battles = () => (IE.battles||[]).map(b=>`<div class="battle">
