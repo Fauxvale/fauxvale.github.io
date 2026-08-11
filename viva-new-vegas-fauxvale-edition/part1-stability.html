@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Installing Fauxvale Edition - Part One: Stability</title>
+<!-- Sets data-crt before first paint so FX never flash on when disabled. -->
+<script src="crt.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="crt.css" />
+<style>
+  :root {
+    /* Vault-Tec amber terminal palette */
+    --phosphor: #ffb642;
+    --phosphor-dim: #b9741a;
+    --phosphor-glow: rgba(255, 182, 66, 0.65);
+    --phosphor-faint: rgba(255, 182, 66, 0.14);
+    --amber: #ffdf9e;
+    --screen: #140a02;
+    --screen-deep: #0a0500;
+    --bezel: #1c1108;
+    /* crt.css overrides these when FX are toggled off. */
+    --glow: 1;
+    --font-display: "Fixedsys", "VT323", monospace;
+    --display-scale: 1;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { margin: 0; }
+
+  body {
+    min-height: 100vh;
+    background: radial-gradient(ellipse at top, #1b0d06 0%, #0a0500 65%, #000 100%);
+    color: var(--phosphor);
+    font-family: "Share Tech Mono", monospace;
+    font-size: clamp(15px, 1.6vw, 17px);
+    line-height: 1.65;
+  }
+
+  /* --- Full-screen CRT "screen" --- */
+  .terminal {
+    position: relative;
+    min-height: 100vh;
+    animation: flicker 5s infinite steps(60);
+  }
+
+  .terminal::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 58%, rgba(0, 0, 0, 0.55) 100%);
+    pointer-events: none;
+    z-index: 40;
+  }
+
+  .terminal::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      repeating-linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0) 0px,
+        rgba(0, 0, 0, 0) 2px,
+        rgba(0, 0, 0, 0.26) 3px,
+        rgba(0, 0, 0, 0.26) 4px
+      );
+    pointer-events: none;
+    z-index: 41;
+    mix-blend-mode: multiply;
+  }
+
+  .scan-sweep {
+    position: fixed;
+    left: 0;
+    right: 0;
+    height: 180px;
+    top: -180px;
+    background: linear-gradient(to bottom, transparent, rgba(255, 182, 66, 0.07), transparent);
+    pointer-events: none;
+    z-index: 42;
+    animation: sweep 7s linear infinite;
+  }
+
+  @keyframes sweep {
+    0% { top: -180px; }
+    100% { top: 100%; }
+  }
+
+  @keyframes flicker {
+    0%, 100% { opacity: 1; }
+    96% { opacity: 1; }
+    97% { opacity: 0.85; }
+    98% { opacity: 1; }
+    99% { opacity: 0.92; }
+  }
+
+  /* --- Layout --- */
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 940px;
+    margin: 0 auto;
+    padding: clamp(20px, 4vw, 40px) clamp(20px, 5vw, 56px) clamp(60px, 8vw, 96px);
+  }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    font-size: clamp(11px, 1.5vw, 14px);
+    letter-spacing: 0.15em;
+    color: var(--phosphor-dim);
+    text-shadow: 0 0 calc(6px * var(--glow)) var(--phosphor-glow);
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255, 182, 66, 0.22);
+    text-transform: uppercase;
+  }
+
+  .step-label {
+    margin: clamp(30px, 5vw, 52px) 0 0.4em;
+    font-size: clamp(13px, 2vw, 16px);
+    letter-spacing: 0.4em;
+    text-indent: 0.4em;
+    color: var(--phosphor-dim);
+    text-transform: uppercase;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: calc(clamp(40px, 8vw, 80px) * var(--display-scale));
+    line-height: 0.95;
+    margin: 0 0 0.15em;
+    letter-spacing: 0.01em;
+    text-shadow:
+      0 0 calc(8px * var(--glow)) var(--phosphor-glow),
+      0 0 calc(26px * var(--glow)) var(--phosphor-glow),
+      0 0 calc(50px * var(--glow)) rgba(255, 182, 66, 0.35);
+  }
+
+  .subhead {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: calc(clamp(24px, 4.4vw, 42px) * var(--display-scale));
+    line-height: 1;
+    margin: 0 0 0.9em;
+    color: var(--amber);
+    text-shadow:
+      0 0 calc(8px * var(--glow)) rgba(255, 182, 66, 0.55),
+      0 0 calc(22px * var(--glow)) rgba(255, 182, 66, 0.3);
+  }
+
+  .lede {
+    max-width: 70ch;
+    margin: 0 0 clamp(30px, 5vw, 48px);
+    color: var(--amber);
+    text-shadow: 0 0 calc(5px * var(--glow)) rgba(255, 182, 66, 0.3);
+  }
+
+  .lede strong { color: var(--phosphor); font-weight: 400; }
+
+  a { color: var(--phosphor); }
+
+  /* --- Steps --- */
+  .steps {
+    list-style: none;
+    counter-reset: step;
+    margin: 0 0 clamp(30px, 5vw, 48px);
+    padding: 0;
+    display: grid;
+    gap: 20px;
+  }
+
+  .step {
+    counter-increment: step;
+    position: relative;
+    min-width: 0;
+    padding: clamp(18px, 3vw, 26px) clamp(18px, 3vw, 26px) clamp(18px, 3vw, 26px) clamp(64px, 9vw, 84px);
+    border: 2px solid var(--phosphor-dim);
+    border-radius: 6px;
+    background: rgba(20, 10, 2, 0.55);
+  }
+
+  .step::before {
+    content: counter(step, decimal-leading-zero);
+    position: absolute;
+    left: clamp(14px, 2.4vw, 22px);
+    top: clamp(16px, 2.6vw, 24px);
+    font-family: var(--font-display);
+    font-size: calc(clamp(30px, 5vw, 44px) * var(--display-scale));
+    line-height: 1;
+    color: var(--phosphor);
+    text-shadow: 0 0 calc(10px * var(--glow)) var(--phosphor-glow);
+  }
+
+  .step h2 {
+    font-family: var(--font-display);
+    font-size: calc(clamp(24px, 3.6vw, 34px) * var(--display-scale));
+    line-height: 1.02;
+    margin: 0 0 0.5em;
+    letter-spacing: 0.01em;
+    text-shadow: 0 0 calc(8px * var(--glow)) var(--phosphor-glow);
+  }
+
+  .step p { margin: 0 0 0.9em; max-width: 68ch; }
+  .step p:last-child { margin-bottom: 0; }
+
+  /* Inline + block code (always the readable mono, never the display font) */
+  .c {
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.94em;
+    color: var(--phosphor);
+    background: rgba(255, 182, 66, 0.1);
+    border: 1px solid rgba(255, 182, 66, 0.25);
+    border-radius: 3px;
+    padding: 0.05em 0.4em;
+    white-space: nowrap;
+  }
+
+  .path {
+    display: block;
+    font-family: "Share Tech Mono", monospace;
+    font-size: 0.9em;
+    color: var(--amber);
+    background: var(--screen-deep);
+    border: 1px solid var(--phosphor-dim);
+    border-left: 4px solid var(--phosphor);
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin: 0 0 0.9em;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  /* Before -> after value change */
+  .change {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    font-family: "Share Tech Mono", monospace;
+    background: var(--screen-deep);
+    border: 1px solid var(--phosphor-dim);
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin: 0 0 0.9em;
+  }
+
+  .change .label {
+    font-size: 0.72em;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--phosphor-dim);
+    width: 100%;
+  }
+
+  .change .old { color: var(--phosphor-dim); text-decoration: line-through; }
+  .change .arrow { color: var(--phosphor); }
+  .change .new {
+    color: var(--screen-deep);
+    background: var(--phosphor);
+    border-radius: 3px;
+    padding: 0.1em 0.5em;
+    box-shadow: 0 0 calc(10px * var(--glow)) var(--phosphor-glow);
+  }
+
+  /* The MO2 Tools toolbar button, shown inline in the text */
+  .tool-btn {
+    height: 1.55em;
+    width: auto;
+    vertical-align: -0.4em;
+    padding: 2px;
+    margin: 0 0.15em;
+    background: rgba(255, 182, 66, 0.12);
+    border: 1px solid var(--phosphor-dim);
+    border-radius: 3px;
+    image-rendering: pixelated;
+  }
+
+  /* Mod download callout */
+  .mod {
+    margin: 0.4em 0 0;
+    padding: 16px 18px;
+    border: 1px solid var(--phosphor-dim);
+    border-left: 4px solid var(--phosphor);
+    border-radius: 4px;
+    background: rgba(255, 182, 66, 0.06);
+  }
+
+  .mod .mod-name {
+    font-family: var(--font-display);
+    font-size: calc(clamp(20px, 3vw, 28px) * var(--display-scale));
+    line-height: 1;
+    margin: 0 0 0.35em;
+    text-shadow: 0 0 calc(8px * var(--glow)) var(--phosphor-glow);
+  }
+
+  .mod p { margin: 0 0 0.8em; }
+
+  .dl-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    font-family: "Share Tech Mono", monospace;
+    font-size: clamp(13px, 1.7vw, 15px);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--screen-deep);
+    background: var(--phosphor);
+    padding: 9px 16px;
+    border: 2px solid var(--phosphor);
+    border-radius: 4px;
+    box-shadow: 0 0 calc(10px * var(--glow)) rgba(255, 182, 66, 0.35);
+    transition: background 0.15s ease, box-shadow 0.2s ease;
+  }
+
+  .dl-link:hover,
+  .dl-link:focus-visible {
+    outline: none;
+    background: var(--amber);
+    border-color: var(--amber);
+    box-shadow: 0 0 calc(16px * var(--glow)) var(--phosphor-glow);
+  }
+
+  /* "Up next" note */
+  .upnext {
+    margin: 0 0 clamp(30px, 5vw, 46px);
+    padding: 18px 22px;
+    border: 1px dashed var(--phosphor-dim);
+    border-radius: 6px;
+    background: rgba(255, 182, 66, 0.03);
+  }
+
+  .upnext h3 {
+    font-family: var(--font-display);
+    font-size: calc(clamp(22px, 3.2vw, 30px) * var(--display-scale));
+    margin: 0 0 0.3em;
+    letter-spacing: 0.02em;
+    text-shadow: 0 0 calc(8px * var(--glow)) var(--phosphor-glow);
+  }
+
+  .upnext p { margin: 0; max-width: 70ch; }
+
+  /* Optional further-reading note */
+  .readmore {
+    margin: 0 0 clamp(30px, 5vw, 46px);
+    padding-left: 16px;
+    border-left: 3px solid var(--phosphor-dim);
+    font-size: 0.94em;
+    color: var(--phosphor-dim);
+    max-width: 74ch;
+  }
+
+  .readmore strong { color: var(--phosphor); font-weight: 400; }
+  .readmore a { color: var(--phosphor); }
+
+  /* Footer nav */
+  .nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding-top: clamp(20px, 4vw, 32px);
+    border-top: 1px solid rgba(255, 182, 66, 0.22);
+  }
+
+  .nav-link {
+    font-family: var(--font-display);
+    font-size: calc(clamp(22px, 3vw, 30px) * var(--display-scale));
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--phosphor);
+    text-shadow: 0 0 calc(8px * var(--glow)) var(--phosphor-glow);
+  }
+
+  .nav-link:hover,
+  .nav-link:focus-visible { outline: none; color: var(--amber); }
+
+  .nav-link.disabled {
+    color: var(--phosphor-dim);
+    text-shadow: none;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .nav-link.next { text-align: right; }
+
+  .nav-link .sub {
+    display: block;
+    font-family: "Share Tech Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    color: var(--phosphor-dim);
+  }
+
+  @media (max-width: 1280px) {
+    .wrap { padding-top: 68px; }
+  }
+
+  @media (max-width: 460px) {
+    .topbar { flex-direction: column; align-items: flex-start; gap: 4px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .terminal, .scan-sweep { animation: none; }
+  }
+</style>
+</head>
+<body>
+  <button type="button" class="crt-toggle" aria-pressed="true" title="Toggle CRT / phosphor effects">
+    <span class="led" aria-hidden="true"></span>
+    <span>FX <span class="state"></span></span>
+  </button>
+
+  <main class="terminal">
+    <div class="scan-sweep" aria-hidden="true"></div>
+
+    <div class="wrap">
+      <div class="topbar">
+        <span>RobCo Industries (TM) Termlink</span>
+        <span>Step 02</span>
+      </div>
+
+      <p class="step-label">Step 02 - Part One</p>
+      <h1>Installing<br />Fauxvale Edition</h1>
+      <span class="subhead">Part One - Stability</span>
+
+      <p class="lede">
+        Viva New Vegas is installed and running - nice work. Now Fauxvale Edition begins (again).
+        Part One is all about <strong>stability</strong>: a few quick INI tweaks and one new mod
+        layered on top of your VNV setup. Everything here happens inside
+        <strong>Mod Organizer 2 (MO2)</strong>, the same tool VNV had you set up.
+      </p>
+
+      <ol class="steps">
+        <!-- Step 1 -->
+        <li class="step">
+          <h2>Create your Fauxvale Edition separator</h2>
+          <p>
+            Open MO2. In the left-hand mod list, scroll to the bottom of your VNV setup and find the
+            <span class="c">Extended Finish</span> separator. Right-click empty space in the
+            list and choose <strong>Create separator</strong>. Name it exactly
+            <span class="c">Fauxvale Edition</span>.
+          </p>
+          <p>
+            Drag the new separator so it sits <strong>directly below</strong>
+            <span class="c">Extended Finish</span>. Everything we install from here on lives under this
+            separator - that keeps Fauxvale Edition cleanly stacked on top of VNV.
+          </p>
+        </li>
+
+        <!-- Step 2 -->
+        <li class="step">
+          <h2>Force fullscreen in FalloutCustom.ini</h2>
+          <p>
+            At the top of MO2, click the
+            <img class="tool-btn" src="Tools.webp" alt="MO2 Tools" />
+            <strong>Tools</strong> button and choose <strong>INI Editor</strong>. In the editor, select
+            the <span class="c">FalloutCustom.ini</span> tab - VNV already populated it with the correct
+            base settings.
+          </p>
+          <p>Scroll to the <span class="c">[Display]</span> section and make this change, then hit <strong>Save</strong>:</p>
+          <div class="change">
+            <span class="label">[Display]</span>
+            <span class="old">bFull Screen=0</span>
+            <span class="arrow">&#9656;</span>
+            <span class="new">bFull Screen=1</span>
+          </div>
+        </li>
+
+        <!-- Step 3 -->
+        <li class="step">
+          <h2>Enable the flip model in NVTF.ini</h2>
+          <p>Open this file (it lives inside your MO2 <span class="c">mods</span> folder):</p>
+          <span class="path">...\mods\NVTF - INI\NVSE\Plugins\NVTF.ini</span>
+          <p>Find <span class="c">bUseFlipModel</span> and change its value to <span class="c">1</span>, then save:</p>
+          <div class="change">
+            <span class="old">bUseFlipModel=0</span>
+            <span class="arrow">&#9656;</span>
+            <span class="new">bUseFlipModel=1</span>
+          </div>
+        </li>
+
+        <!-- Step 4 -->
+        <li class="step">
+          <h2>Install OneTweak but Really Updated</h2>
+          <p>
+            Open the mod's Nexus page, switch to the <strong>Files</strong> tab, and click
+            <strong>Mod Manager Download</strong> on the main file. Nexus hands the download straight to
+            MO2 - you'll see it arrive in MO2's <strong>Downloads</strong> pane.
+          </p>
+          <div class="mod">
+            <p class="mod-name">OneTweak but Really Updated</p>
+            <p>Borderless Windowed Mode for Fallout New Vegas.</p>
+            <a class="dl-link" href="https://www.nexusmods.com/newvegas/mods/79211" target="_blank" rel="noopener noreferrer">
+              Open on Nexus &#8599;
+            </a>
+          </div>
+          <p style="margin-top: 0.9em;">
+            In the <strong>Downloads</strong> pane, double-click the finished download to install it
+            (keep the default name). Once it appears in your mod list, drag it
+            <strong>under your Fauxvale Edition separator</strong> and tick its checkbox to
+            <strong>activate</strong> it.
+          </p>
+        </li>
+      </ol>
+
+      <p class="readmore">
+        <strong>Want the details?</strong> For a deeper explanation of what these INI settings do and
+        what OneTweak but Really Updated changes under the hood, see the
+        <a href="https://performance.moddinglinked.com/falloutnv.html" target="_blank" rel="noopener noreferrer">Fallout: New Vegas performance guide</a>
+        - entirely optional, just there if you're interested.
+      </p>
+
+      <div class="upnext">
+        <h3>Up next</h3>
+        <p>
+          Stability is handled. Next we move on to <strong>Part Two - Quality of Life</strong>, where we
+          make the game slightly nicer to play.
+        </p>
+      </div>
+
+      <nav class="nav">
+        <a class="nav-link" href="base-game.html">&#9666; Step 01<span class="sub">Base game</span></a>
+        <a class="nav-link next" href="part2-qol.html">
+          Part Two &#9656;
+          <span class="sub">Quality of Life</span>
+        </a>
+      </nav>
+    </div>
+  </main>
+</body>
+</html>
