@@ -1,0 +1,96 @@
+/* ==========================================================================
+   Shared CRT / phosphor-FX layer for the Viva New Vegas — Fauxvale Edition
+   installation guide. Include on every page alongside crt.js.
+
+   Relies on these palette variables being defined by the page:
+     --phosphor, --phosphor-dim, --phosphor-glow
+   and on --glow (a unitless glow multiplier) which defaults to 1 here.
+   ========================================================================== */
+
+/* Fixedsys Excelsior - the terminal display face used for all headers.
+   Sourced from https://github.com/kika/fixedsys (FSEX302.ttf). */
+@font-face {
+  font-family: "Fixedsys";
+  src: url("FSEX302.ttf") format("truetype");
+  font-display: swap;
+}
+
+:root {
+  /* Glow intensity multiplier. Scaled down when FX are toggled off so the
+     phosphor bloom becomes subtle instead of vanishing entirely. */
+  --glow: 1;
+  /* Display/header font. Swapped for a cleaner, more readable face when FX
+     are off. --display-scale compensates for the wider readable font so
+     headings keep roughly the same footprint. */
+  --font-display: "Fixedsys", "VT323", monospace;
+  --display-scale: 1;
+  /* Flat background used in place of the CRT gradient when FX are off. */
+  --fx-off-bg: #1F1203;
+}
+
+/* --- FX OFF: quiet the glow + switch to a more readable header font --- */
+:root[data-crt="off"] {
+  --glow: 0.35;
+  --font-display: "Share Tech Mono", monospace;
+  --display-scale: 0.72;
+}
+
+/* --- FX OFF: disable the animated screen artifacts --- */
+:root[data-crt="off"] .terminal { animation: none; }
+:root[data-crt="off"] .terminal::before,
+:root[data-crt="off"] .terminal::after,
+:root[data-crt="off"] .scan-sweep { display: none; }
+
+/* --- FX OFF: drop the gradient + vignette for a flat warm-amber field --- */
+:root[data-crt="off"] body { background: var(--fx-off-bg); }
+:root[data-crt="off"] .terminal {
+  background: var(--fx-off-bg);
+  box-shadow: none;
+}
+
+/* --- FX toggle button (fixed to the page, top-right) --- */
+.crt-toggle {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  font-family: "Share Tech Mono", monospace;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--phosphor);
+  background: rgba(20, 10, 2, 0.72);
+  border: 2px solid var(--phosphor-dim);
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+  text-shadow: 0 0 calc(6px * var(--glow)) var(--phosphor-glow);
+  box-shadow: 0 0 calc(10px * var(--glow)) rgba(255, 182, 66, 0.18), inset 0 0 12px rgba(0, 0, 0, 0.6);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+
+.crt-toggle:hover,
+.crt-toggle:focus-visible {
+  outline: none;
+  border-color: var(--phosphor);
+  box-shadow: 0 0 16px var(--phosphor-glow), inset 0 0 12px rgba(0, 0, 0, 0.6);
+}
+
+.crt-toggle .led {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--phosphor);
+  box-shadow: 0 0 8px var(--phosphor-glow), 0 0 14px var(--phosphor-glow);
+}
+
+.crt-toggle .state::before { content: "ON"; }
+
+:root[data-crt="off"] .crt-toggle .led {
+  background: #4a2c08;
+  box-shadow: none;
+}
+:root[data-crt="off"] .crt-toggle .state::before { content: "OFF"; }
