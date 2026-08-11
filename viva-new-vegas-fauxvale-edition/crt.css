@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Shared CRT / phosphor-FX layer for the Viva New Vegas — Fauxvale Edition
+   Shared CRT / phosphor-FX layer for the Viva New Vegas - Fauxvale Edition
    installation guide. Include on every page alongside crt.js.
 
    Relies on these palette variables being defined by the page:
@@ -33,6 +33,16 @@
   --glow: 0.35;
   --font-display: "Share Tech Mono", monospace;
   --display-scale: 0.72;
+  /* Every palette colour dimmed 10% (each RGB channel * 0.9) for a softer
+     readability mode. */
+  --phosphor: #e6a43b;
+  --phosphor-dim: #a76817;
+  --phosphor-glow: rgba(230, 164, 59, 0.65);
+  --phosphor-faint: rgba(230, 164, 59, 0.14);
+  --amber: #e6c98e;
+  --screen: #120902;
+  --screen-deep: #090400;
+  --fx-off-bg: #1c1003;
 }
 
 /* --- FX OFF: disable the animated screen artifacts --- */
